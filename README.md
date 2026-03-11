@@ -1,4 +1,4 @@
-<p align="center"><img src="Docs/Images/Logo_UNIR.png" alt="Logo_UNIR" /></p>
+<p align="center"><img src="https://www.unir.net/wp-content/uploads/2019/11/Unir_2021_logo.svg" alt="Logo_UNIR" /></p>
 <p align="center" style="font-family: 'Calibri Light'; font-size:30px">Universidad Internacional de La Rioja</p>
 <p align="center" style="font-family: 'Calibri Light'; font-size:26px">Escuela Superior de Ingeniería y Tecnología</center></p>
 
