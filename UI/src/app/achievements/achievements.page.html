@@ -1,0 +1,122 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Achievements</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Achievements</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <!-- Summary row -->
+  <div class="ion-padding-horizontal ion-padding-top">
+    <ion-item lines="none" color="light" style="border-radius: 12px">
+      <ion-icon name="trophy-outline" slot="start" color="warning"></ion-icon>
+      <ion-label>
+        <h3>{{ unlockedCount() }} of {{ total() }} unlocked</h3>
+        <p>{{ inProgressCount() }} in progress</p>
+      </ion-label>
+      <ion-badge slot="end" color="warning">{{ unlockedPct() }}%</ion-badge>
+    </ion-item>
+  </div>
+
+  <!-- Category filter -->
+  <ion-segment
+    [value]="selectedCategory()"
+    (ionChange)="onCategoryChange($event)"
+    class="ion-padding-horizontal ion-padding-top"
+    scrollable
+  >
+    <ion-segment-button value="all">All</ion-segment-button>
+    <ion-segment-button value="steps">
+      <ion-icon name="footsteps-outline"></ion-icon>
+      Steps
+    </ion-segment-button>
+    <ion-segment-button value="streaks">
+      <ion-icon name="flame-outline"></ion-icon>
+      Streaks
+    </ion-segment-button>
+    <ion-segment-button value="wins">
+      <ion-icon name="trophy-outline"></ion-icon>
+      Wins
+    </ion-segment-button>
+    <ion-segment-button value="social">
+      <ion-icon name="people-outline"></ion-icon>
+      Social
+    </ion-segment-button>
+  </ion-segment>
+
+  <!-- Unlocked -->
+  @if (unlockedFiltered().length > 0) {
+  <ion-list [inset]="true">
+    <ion-list-header>
+      <ion-label>Unlocked</ion-label>
+      <ion-chip color="success">{{ unlockedFiltered().length }}</ion-chip>
+    </ion-list-header>
+
+    @for (a of unlockedFiltered(); track a.id) {
+    <ion-item lines="full">
+      <ion-icon slot="start" [name]="a.icon" color="success"></ion-icon>
+      <ion-label>
+        <h2>{{ a.title }}</h2>
+        <p>{{ a.description }}</p>
+      </ion-label>
+      <ion-note slot="end">{{ a.unlockedAt }}</ion-note>
+    </ion-item>
+    }
+  </ion-list>
+  }
+
+  <!-- In Progress -->
+  @if (inProgressFiltered().length > 0) {
+  <ion-list [inset]="true">
+    <ion-list-header>
+      <ion-label>In Progress</ion-label>
+      <ion-chip color="primary">{{ inProgressFiltered().length }}</ion-chip>
+    </ion-list-header>
+
+    @for (a of inProgressFiltered(); track a.id) {
+    <ion-item lines="full">
+      <ion-icon slot="start" [name]="a.icon" color="primary"></ion-icon>
+      <ion-label>
+        <h2>{{ a.title }}</h2>
+        <p>{{ a.description }}</p>
+        <ion-progress-bar
+          class="ion-margin-top"
+          [value]="a.progress ?? 0"
+          color="primary"
+        ></ion-progress-bar>
+        <p class="ion-margin-top">{{ a.progressLabel }}</p>
+      </ion-label>
+    </ion-item>
+    }
+  </ion-list>
+  }
+
+  <!-- Locked -->
+  @if (lockedFiltered().length > 0) {
+  <ion-list [inset]="true">
+    <ion-list-header>
+      <ion-label>Locked</ion-label>
+      <ion-chip color="medium">{{ lockedFiltered().length }}</ion-chip>
+    </ion-list-header>
+
+    @for (a of lockedFiltered(); track a.id) {
+    <ion-item lines="full" [style.opacity]="0.45">
+      <ion-icon
+        slot="start"
+        name="lock-closed-outline"
+        color="medium"
+      ></ion-icon>
+      <ion-label>
+        <h2>{{ a.title }}</h2>
+        <p>{{ a.description }}</p>
+      </ion-label>
+    </ion-item>
+    }
+  </ion-list>
+  }
+</ion-content>

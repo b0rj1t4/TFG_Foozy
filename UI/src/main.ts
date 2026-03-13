@@ -11,6 +11,10 @@ import {
 } from '@ionic/angular/standalone';
 import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
+import { addIcons } from 'ionicons';
+import * as allIcons from 'ionicons/icons';
+
+addIcons(allIcons);
 
 bootstrapApplication(AppComponent, {
   providers: [

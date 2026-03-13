@@ -1,0 +1,12 @@
+ion-col {
+  text-align: center;
+
+  ion-avatar {
+    margin: 0 auto;
+
+    &.podium-avatar {
+      height: 80px;
+      width: 80px;
+    }
+  }
+}

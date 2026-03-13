@@ -11,24 +11,45 @@ export const routes: Routes = [
     loadComponent: () => import('./tabs/tabs.page').then((m) => m.TabsPage),
     children: [
       {
-        path: 'tab1',
-        loadComponent: () => import('./tab1/tab1.page').then((m) => m.Tab1Page),
+        path: 'achievements',
+        loadComponent: () =>
+          import('./achievements/achievements.page').then(
+            (m) => m.AchievementsPage,
+          ),
       },
       {
-        path: 'tab2',
-        loadComponent: () => import('./tab2/tab2.page').then((m) => m.Tab2Page),
+        path: 'activity',
+        loadComponent: () =>
+          import('./activity/activity.page').then((m) => m.ActivityPage),
       },
       {
-        path: 'tab3',
+        path: 'challenges',
+        loadComponent: () =>
+          import('./challenges/challenges.page').then((m) => m.ChallengesPage),
+      },
+      {
+        path: '',
+        redirectTo: '/tabs/activity',
+        pathMatch: 'full',
+      },
+    ],
+  },
+  {
+    path: 'challenge',
+    children: [
+      {
+        path: 'create',
+        loadComponent: () =>
+          import('./create-challenge/create-challenge.page').then(
+            (m) => m.CreateChallengePage,
+          ),
+      },
+      {
+        path: ':id',
         loadComponent: () =>
           import('./leaderboard/leaderboard.page').then(
             (m) => m.LeaderboardPage,
           ),
-      },
-      {
-        path: '',
-        redirectTo: '/tabs/tab3',
-        pathMatch: 'full',
       },
     ],
   },

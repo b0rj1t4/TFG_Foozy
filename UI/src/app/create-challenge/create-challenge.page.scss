@@ -1,0 +1,71 @@
+.image-preview {
+  width: 100%;
+  height: 180px;
+  border-radius: 12px;
+  background: var(--ion-color-light) center / cover no-repeat;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.image-overlay {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+/* Preset thumbnails */
+.preset-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.preset-thumb {
+  flex-shrink: 0;
+  width: 80px;
+  cursor: pointer;
+  position: relative;
+  text-align: center;
+}
+
+.preset-thumb img {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  transition: border-color 0.15s;
+}
+
+.preset-thumb--selected img {
+  border-color: var(--ion-color-primary);
+}
+
+.preset-thumb span {
+  display: block;
+  font-size: 11px;
+  color: var(--ion-color-medium);
+  margin-top: 4px;
+}
+
+.preset-check {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Goal chips */
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px 0;
+}

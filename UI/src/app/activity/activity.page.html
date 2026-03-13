@@ -1,0 +1,130 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Activity</ion-title>
+    <ion-select
+      slot="end"
+      [value]="selectedPeriod()"
+      (ionChange)="onPeriodChange($event)"
+      interface="popover"
+      style="max-width: 140px; padding-inline-end: 8px"
+    >
+      <ion-select-option value="today">Today</ion-select-option>
+      <ion-select-option value="week">This Week</ion-select-option>
+      <ion-select-option value="month">This Month</ion-select-option>
+      <ion-select-option value="year">This Year</ion-select-option>
+    </ion-select>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Activity</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <!-- Stats -->
+  <ion-grid class="ion-padding-horizontal ion-padding-top">
+    <ion-row>
+      <ion-col>
+        <ion-card color="primary">
+          <ion-card-header>
+            <ion-card-subtitle>Steps</ion-card-subtitle>
+            <ion-card-title>{{ currentStats().steps | number }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-progress-bar
+              [value]="stepGoalPercent() / 100"
+              color="light"
+            ></ion-progress-bar>
+            <p>{{ stepGoalPercent() }}% of goal</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col>
+        <ion-card color="warning">
+          <ion-card-header>
+            <ion-card-subtitle>Rank</ion-card-subtitle>
+            <ion-card-title>#{{ currentStats().position }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <p>{{ rankLabel() }}</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col>
+        <ion-card color="success">
+          <ion-card-header>
+            <ion-card-subtitle>Challenges</ion-card-subtitle>
+            <ion-card-title>{{ currentStats().challenges }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <p>{{ completedCount() }} completed</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <!-- Challenges List -->
+  <ion-list [inset]="true">
+    <ion-list-header>
+      <ion-label>Challenges</ion-label>
+      <ion-chip>{{ filteredChallenges().length }}</ion-chip>
+    </ion-list-header>
+
+    @for (challenge of filteredChallenges(); track challenge.id) {
+    <ion-item [detail]="challenge.status !== 'upcoming'" lines="full">
+      <ion-icon
+        slot="start"
+        [name]="statusIcon(challenge.status)"
+        [color]="statusColor(challenge.status)"
+      ></ion-icon>
+
+      <ion-label>
+        <h2>{{ challenge.title }}</h2>
+        <p>{{ challenge.description }}</p>
+
+        @if (challenge.status !== 'upcoming') {
+        <ion-progress-bar
+          class="ion-margin-top"
+          [value]="challenge.currentSteps / challenge.targetSteps"
+          [color]="challenge.status === 'completed' ? 'success' : 'primary'"
+        ></ion-progress-bar>
+        <p class="ion-margin-top">
+          <ion-icon
+            name="people-outline"
+            style="vertical-align: middle"
+          ></ion-icon>
+          {{ challenge.participants }} &nbsp;&nbsp;
+          <ion-icon
+            name="ribbon-outline"
+            style="vertical-align: middle"
+          ></ion-icon>
+          #{{ challenge.yourRank }} &nbsp;&nbsp;
+          <ion-icon
+            name="time-outline"
+            style="vertical-align: middle"
+          ></ion-icon>
+          {{ challenge.endDate }}
+        </p>
+        }
+      </ion-label>
+
+      @if (challenge.status !== 'upcoming') {
+      <ion-note slot="end"> {{ progressPct(challenge) }}% </ion-note>
+      } @else {
+      <ion-badge slot="end" color="medium">Soon</ion-badge>
+      }
+    </ion-item>
+    } @if (filteredChallenges().length === 0) {
+    <ion-item lines="none">
+      <ion-label class="ion-text-center" color="medium">
+        No challenges for this period
+      </ion-label>
+    </ion-item>
+    }
+  </ion-list>
+</ion-content>

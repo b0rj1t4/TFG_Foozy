@@ -1,12 +1,18 @@
 import { Component } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import {
+  IonIcon,
+  IonTabs,
+  IonTabBar,
+  IonTabButton,
+  IonLabel,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-tabs',
   templateUrl: 'tabs.page.html',
   styleUrls: ['tabs.page.scss'],
   standalone: true,
-  imports: [IonicModule],
+  imports: [IonIcon, IonTabs, IonTabBar, IonTabButton, IonLabel],
 })
 export class TabsPage {
   constructor() {}
