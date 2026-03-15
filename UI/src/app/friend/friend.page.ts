@@ -1,12 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed } from '@angular/core';
 import {
-  IonBackButton,
   IonBadge,
   IonButton,
   IonButtons,
-  IonCard,
-  IonCardContent,
   IonChip,
   IonCol,
   IonContent,
@@ -18,7 +15,6 @@ import {
   IonList,
   IonListHeader,
   IonNote,
-  IonProgressBar,
   IonRow,
   IonTitle,
   IonToolbar,
@@ -181,7 +177,6 @@ const SHARED_CHALLENGES: SharedChallenge[] = [
     IonToolbar,
     IonTitle,
     IonButtons,
-    IonBackButton,
     IonButton,
     IonIcon,
     IonItem,
@@ -191,9 +186,6 @@ const SHARED_CHALLENGES: SharedChallenge[] = [
     IonNote,
     IonChip,
     IonBadge,
-    IonProgressBar,
-    IonCard,
-    IonCardContent,
     IonGrid,
     IonRow,
     IonCol,

@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
 import {
   IonIcon,
-  IonTabs,
+  IonLabel,
   IonTabBar,
   IonTabButton,
-  IonLabel,
-  IonBadge,
+  IonTabs,
 } from '@ionic/angular/standalone';
 
 // In a real app this comes from your AuthService / UserStore
@@ -19,7 +18,7 @@ const CURRENT_USER = {
   templateUrl: 'tabs.page.html',
   styleUrls: ['tabs.page.scss'],
   standalone: true,
-  imports: [IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel, IonBadge],
+  imports: [IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel],
 })
 export class TabsPage {
   readonly user = CURRENT_USER;

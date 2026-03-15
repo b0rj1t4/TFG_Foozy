@@ -3,12 +3,10 @@ import { Component, computed, signal } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
-  FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
 import {
-  IonImg,
   IonBackButton,
   IonButton,
   IonButtons,
@@ -25,7 +23,6 @@ import {
   IonModal,
   IonNote,
   IonTextarea,
-  IonThumbnail,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
@@ -87,8 +84,6 @@ const GOAL_PRESETS = [5000, 10000, 50000, 100000, 500000];
     IonIcon,
     IonChip,
     IonNote,
-    IonThumbnail,
-    IonImg,
   ],
 })
 export class CreateChallengePage {

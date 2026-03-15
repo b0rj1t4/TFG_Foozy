@@ -1,31 +1,30 @@
-import { Component, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import {
+  IonBackButton,
+  IonBadge,
+  IonButtons,
+  IonChip,
   IonContent,
   IonHeader,
-  IonToolbar,
-  IonButtons,
-  IonBackButton,
-  IonButton,
   IonIcon,
   IonItem,
   IonLabel,
   IonList,
   IonListHeader,
   IonNote,
-  IonChip,
-  IonBadge,
   IonProgressBar,
+  IonToolbar,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   calendarOutline,
-  peopleOutline,
+  flagOutline,
   footstepsOutline,
+  peopleOutline,
   timeOutline,
   trophyOutline,
-  flagOutline,
 } from 'ionicons/icons';
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -237,7 +236,6 @@ const PODIUM_LABELS: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' 
     IonToolbar,
     IonButtons,
     IonBackButton,
-    IonButton,
     IonIcon,
     IonItem,
     IonLabel,
@@ -290,11 +288,6 @@ export class LeaderboardPage {
   }
 
   goToProfile(participant: Participant) {
-    // if (participant.isFriend) {
     this.router.navigate(['/friend', participant.id]);
-    // } else {
-    //   // Non-friends could open a lighter public profile — adjust to your routing
-    //   console.log('View profile', participant.id);
-    // }
   }
 }
