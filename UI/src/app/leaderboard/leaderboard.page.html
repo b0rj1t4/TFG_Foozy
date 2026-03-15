@@ -1,65 +1,166 @@
-<ion-header>
-  <ion-toolbar color="danger">
+<ion-header class="ion-no-border">
+  <ion-toolbar class="toolbar-transparent">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/"></ion-back-button>
+      <ion-back-button defaultHref="/tabs/activity"></ion-back-button>
     </ion-buttons>
-    <ion-title>Leaderboard</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content color="danger">
-  <!-- Top 3 Podium -->
+<ion-content [fullscreen]="true" [scrollEvents]="true">
+  <!-- Cover -->
+  <div
+    class="cover"
+    [style.background-image]="'url(' + challenge.coverUrl + ')'"
+  >
+    <div class="cover-scrim">
+      <h1 class="cover-title">{{ challenge.title }}</h1>
+      <p class="cover-desc">{{ challenge.description }}</p>
+    </div>
+  </div>
 
-  <ion-grid>
-    <ion-row>
-      <ion-col>
-        <ion-avatar>
-          <img [src]="topThree[1]?.image" [alt]="topThree[1]?.name" />
-        </ion-avatar>
-        <div class="rank-badge">2</div>
-        <div class="player-info">
-          <p class="player-name">{{ topThree[1]?.name }}</p>
-          <p class="player-points">{{ topThree[1]?.points }} pts</p>
-        </div>
-      </ion-col>
-      <ion-col>
-        <ion-avatar class="podium-avatar">
-          <img [src]="topThree[0]?.image" [alt]="topThree[0]?.name" />
-        </ion-avatar>
-        <div class="rank-badge">1</div>
-        <div class="player-info">
-          <p class="player-name">{{ topThree[0]?.name }}</p>
-          <p class="player-points">{{ topThree[0]?.points }} pts</p>
-        </div>
-      </ion-col>
-      <ion-col>
-        <ion-avatar>
-          <img [src]="topThree[2]?.image" [alt]="topThree[2]?.name" />
-        </ion-avatar>
-        <div class="rank-badge">3</div>
-        <div class="player-info">
-          <p class="player-name">{{ topThree[2]?.name }}</p>
-          <p class="player-points">{{ topThree[2]?.points }} pts</p>
-        </div>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+  <!-- Meta chips -->
+  <div class="chips-row ion-padding-horizontal ion-padding-top">
+    <ion-chip outline color="medium">
+      <ion-icon name="calendar-outline"></ion-icon>
+      <ion-label
+        >{{ formatDate(challenge.startDate) }} – {{
+        formatDate(challenge.endDate) }}</ion-label
+      >
+    </ion-chip>
+    <ion-chip outline color="medium">
+      <ion-icon name="people-outline"></ion-icon>
+      <ion-label>{{ challenge.participants.length }} participants</ion-label>
+    </ion-chip>
+    <ion-chip outline [color]="daysLeft() <= 5 ? 'danger' : 'medium'">
+      <ion-icon name="time-outline"></ion-icon>
+      <ion-label>{{ daysLeft() }}d left</ion-label>
+    </ion-chip>
+  </div>
 
-  <!-- Remaining Players List -->
-  <ion-list class="players-list">
-    <ion-item
-      *ngFor="let player of remainingPlayers"
-      lines="none"
-      class="player-item"
-    >
-      <div class="rank-number">{{ player.rank }}</div>
-      <ion-avatar>
-        <img [src]="player?.image" [alt]="player?.name" />
-      </ion-avatar>
+  <!-- My progress -->
+  <ion-list [inset]="true">
+    <ion-item lines="none">
+      <ion-icon
+        name="footsteps-outline"
+        slot="start"
+        color="primary"
+      ></ion-icon>
       <ion-label>
-        <h2>{{ player.name }}</h2>
+        <h3>Your progress</h3>
+        <p>
+          {{ myEntry().steps | number }} / {{ challenge.targetSteps | number }}
+          steps
+        </p>
+        <ion-progress-bar
+          class="ion-margin-top"
+          [value]="myPct() / 100"
+          color="primary"
+        ></ion-progress-bar>
       </ion-label>
-      <div class="points-badge" slot="end">{{ player.points }} pts</div>
+      <ion-badge slot="end" [color]="myPct() >= 100 ? 'success' : 'primary'">
+        {{ myPct() }}%
+      </ion-badge>
     </ion-item>
+    <ion-item lines="none">
+      <ion-icon name="trophy-outline" slot="start" color="warning"></ion-icon>
+      <ion-label>
+        <h3>Your rank</h3>
+      </ion-label>
+      <ion-note slot="end"
+        >#{{ myRank() }} of {{ challenge.participants.length }}</ion-note
+      >
+    </ion-item>
+  </ion-list>
+
+  <!-- Podium -->
+  <ion-list [inset]="true">
+    <ion-list-header>
+      <ion-label>Leaderboard</ion-label>
+      <ion-badge color="primary">{{ challenge.participants.length }}</ion-badge>
+    </ion-list-header>
+
+    <!-- Top 3 podium -->
+    <ion-item lines="none">
+      <div class="podium-row">
+        <!-- 2nd -->
+        <div
+          class="podium-slot podium-slot--2"
+          (click)="goToProfile(ranked()[1])"
+        >
+          <div
+            class="podium-avatar"
+            [class]="'avatar--' + ranked()[1].avatarColor"
+          >
+            {{ ranked()[1].avatarInitials }}
+          </div>
+          <span class="podium-medal">{{ medal(2) }}</span>
+          <span class="podium-name">{{ firstName(ranked()[1].name) }}</span>
+          <span class="podium-steps">{{ ranked()[1].steps | number }}</span>
+          <div class="podium-block podium-block--2"></div>
+        </div>
+
+        <!-- 1st -->
+        <div
+          class="podium-slot podium-slot--1"
+          (click)="goToProfile(ranked()[0])"
+        >
+          <div
+            class="podium-avatar podium-avatar--lg"
+            [class]="'avatar--' + ranked()[0].avatarColor"
+          >
+            {{ ranked()[0].avatarInitials }}
+          </div>
+          <span class="podium-medal">{{ medal(1) }}</span>
+          <span class="podium-name">{{ firstName(ranked()[0].name) }}</span>
+          <span class="podium-steps">{{ ranked()[0].steps | number }}</span>
+          <div class="podium-block podium-block--1"></div>
+        </div>
+
+        <!-- 3rd -->
+        <div
+          class="podium-slot podium-slot--3"
+          (click)="goToProfile(ranked()[2])"
+        >
+          <div
+            class="podium-avatar"
+            [class]="'avatar--' + ranked()[2].avatarColor"
+          >
+            {{ ranked()[2].avatarInitials }}
+          </div>
+          <span class="podium-medal">{{ medal(3) }}</span>
+          <span class="podium-name">{{ firstName(ranked()[2].name) }}</span>
+          <span class="podium-steps">{{ ranked()[2].steps | number }}</span>
+          <div class="podium-block podium-block--3"></div>
+        </div>
+      </div>
+    </ion-item>
+
+    <!-- Rest of the list -->
+    @for (entry of ranked().slice(3); track entry.id; let i = $index) {
+    <ion-item
+      [lines]="i < ranked().length - 4 ? 'full' : 'none'"
+      [class.item-me]="entry.isMe"
+      [button]="!entry.isMe"
+      (click)="!entry.isMe && goToProfile(entry)"
+    >
+      <ion-note slot="start" class="rank-num">{{ i + 4 }}</ion-note>
+      <div
+        slot="start"
+        class="avatar-sm"
+        [class]="'avatar--' + entry.avatarColor"
+      >
+        {{ entry.avatarInitials }}
+      </div>
+      <ion-label>
+        <h2>
+          {{ entry.name }} @if (entry.isMe) {
+          <ion-badge color="primary">You</ion-badge> } @if (entry.isFriend &&
+          !entry.isMe) { <ion-badge color="success">Friend</ion-badge> }
+        </h2>
+        <p>{{ entry.steps | number }} steps</p>
+      </ion-label>
+      <ion-note slot="end">{{ pct(entry.steps) }}%</ion-note>
+    </ion-item>
+    }
   </ion-list>
 </ion-content>

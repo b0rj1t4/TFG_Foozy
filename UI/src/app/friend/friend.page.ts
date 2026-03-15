@@ -23,6 +23,7 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
+import { NavigationService } from '../services/navigation.service';
 
 // ── Types (shared with the rest of the app) ──────────────────────────────────
 
@@ -230,5 +231,5 @@ export class FriendPage {
     console.log('Unfriended', this.friend.name);
   }
 
-  constructor() {}
+  constructor(public nav: NavigationService) {}
 }

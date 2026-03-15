@@ -1,1 +1,44 @@
+.avatar-tab {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  /* Active ring — ion-tab-button adds .tab-selected on the host,
+         so we target it from the parent via CSS custom properties */
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  transition: outline-color 0.15s;
+}
 
+/* Colour variants */
+.avatar-tab--primary {
+  background: var(--ion-color-primary-tint);
+  color: var(--ion-color-primary-shade);
+}
+.avatar-tab--success {
+  background: var(--ion-color-success-tint);
+  color: var(--ion-color-success-shade);
+}
+.avatar-tab--tertiary {
+  background: var(--ion-color-tertiary-tint);
+  color: var(--ion-color-tertiary-shade);
+}
+.avatar-tab--warning {
+  background: var(--ion-color-warning-tint);
+  color: var(--ion-color-warning-shade);
+}
+.avatar-tab--danger {
+  background: var(--ion-color-danger-tint);
+  color: var(--ion-color-danger-shade);
+}
+
+/* Highlight ring when tab is selected.
+       ion-tab-button exposes --color-selected which we can piggyback on,
+       but the cleanest way is a global rule in global.scss (see note below). */
+:host ::ng-deep ion-tab-button.tab-selected .avatar-tab {
+  outline-color: var(--ion-color-primary);
+}

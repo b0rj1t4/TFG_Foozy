@@ -28,6 +28,11 @@ export const routes: Routes = [
           import('./challenges/challenges.page').then((m) => m.ChallengesPage),
       },
       {
+        path: 'profile',
+        loadComponent: () =>
+          import('./profile/profile.page').then((m) => m.ProfilePage),
+      },
+      {
         path: '',
         redirectTo: '/tabs/activity',
         pathMatch: 'full',
@@ -53,11 +58,7 @@ export const routes: Routes = [
       },
     ],
   },
-  {
-    path: 'profile',
-    loadComponent: () =>
-      import('./profile/profile.page').then((m) => m.ProfilePage),
-  },
+
   {
     path: 'friend/:id',
     loadComponent: () =>

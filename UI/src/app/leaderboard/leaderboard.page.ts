@@ -1,91 +1,300 @@
+import { Component, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import { Router } from '@angular/router';
+import {
+  IonContent,
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonBackButton,
+  IonButton,
+  IonIcon,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonListHeader,
+  IonNote,
+  IonChip,
+  IonBadge,
+  IonProgressBar,
+} from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import {
+  calendarOutline,
+  peopleOutline,
+  footstepsOutline,
+  timeOutline,
+  trophyOutline,
+  flagOutline,
+} from 'ionicons/icons';
 
-interface Player {
-  rank: number;
-  image: string;
+// ── Types ────────────────────────────────────────────────────────────────────
+
+interface Participant {
+  id: number;
   name: string;
-  points: number;
-  avatar?: string;
+  avatarInitials: string;
+  avatarColor: string;
+  steps: number;
+  isMe: boolean;
+  isFriend: boolean;
 }
+
+interface Challenge {
+  id: number;
+  title: string;
+  description: string;
+  coverUrl: string;
+  targetSteps: number;
+  startDate: string;
+  endDate: string;
+  participants: Participant[];
+}
+
+// ── Mock data ────────────────────────────────────────────────────────────────
+
+const CHALLENGE: Challenge = {
+  id: 3,
+  title: 'March Madness',
+  description:
+    'Push your limits this March. Hit 200,000 steps before the month is over!',
+  coverUrl:
+    'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=800&q=80',
+  targetSteps: 200000,
+  startDate: '2026-03-01',
+  endDate: '2026-03-31',
+  participants: [
+    {
+      id: 7,
+      name: 'Inês Rodrigues',
+      avatarInitials: 'IR',
+      avatarColor: 'success',
+      steps: 187400,
+      isMe: false,
+      isFriend: false,
+    },
+    {
+      id: 2,
+      name: 'Miguel Ferreira',
+      avatarInitials: 'MF',
+      avatarColor: 'success',
+      steps: 182000,
+      isMe: false,
+      isFriend: true,
+    },
+    {
+      id: 10,
+      name: 'Tiago Alves',
+      avatarInitials: 'TA',
+      avatarColor: 'danger',
+      steps: 165300,
+      isMe: false,
+      isFriend: false,
+    },
+    {
+      id: 4,
+      name: 'João Silva',
+      avatarInitials: 'JS',
+      avatarColor: 'warning',
+      steps: 158900,
+      isMe: false,
+      isFriend: true,
+    },
+    {
+      id: 8,
+      name: 'Carlos Neves',
+      avatarInitials: 'CN',
+      avatarColor: 'tertiary',
+      steps: 152100,
+      isMe: false,
+      isFriend: false,
+    },
+    {
+      id: 9,
+      name: 'Mariana Sousa',
+      avatarInitials: 'MS',
+      avatarColor: 'warning',
+      steps: 148700,
+      isMe: false,
+      isFriend: false,
+    },
+    {
+      id: 3,
+      name: 'Ana Costa',
+      avatarInitials: 'AC',
+      avatarColor: 'tertiary',
+      steps: 141200,
+      isMe: false,
+      isFriend: true,
+    },
+    {
+      id: 6,
+      name: 'Rui Barbosa',
+      avatarInitials: 'RB',
+      avatarColor: 'primary',
+      steps: 138500,
+      isMe: false,
+      isFriend: false,
+    },
+    {
+      id: 1,
+      name: 'Sara Lopes',
+      avatarInitials: 'SL',
+      avatarColor: 'primary',
+      steps: 136000,
+      isMe: false,
+      isFriend: true,
+    },
+    {
+      id: 0,
+      name: 'Alex Ramos',
+      avatarInitials: 'AR',
+      avatarColor: 'primary',
+      steps: 134500,
+      isMe: true,
+      isFriend: false,
+    },
+    {
+      id: 5,
+      name: 'Beatriz Matos',
+      avatarInitials: 'BM',
+      avatarColor: 'danger',
+      steps: 121300,
+      isMe: false,
+      isFriend: true,
+    },
+    {
+      id: 11,
+      name: 'Pedro Cunha',
+      avatarInitials: 'PC',
+      avatarColor: 'tertiary',
+      steps: 109800,
+      isMe: false,
+      isFriend: false,
+    },
+    {
+      id: 12,
+      name: 'Luísa Fonseca',
+      avatarInitials: 'LF',
+      avatarColor: 'success',
+      steps: 98200,
+      isMe: false,
+      isFriend: false,
+    },
+    {
+      id: 13,
+      name: 'Nuno Pinto',
+      avatarInitials: 'NP',
+      avatarColor: 'warning',
+      steps: 84600,
+      isMe: false,
+      isFriend: false,
+    },
+    {
+      id: 14,
+      name: 'Rita Gomes',
+      avatarInitials: 'RG',
+      avatarColor: 'danger',
+      steps: 71000,
+      isMe: false,
+      isFriend: false,
+    },
+  ],
+};
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function daysRemaining(endDate: string): number {
+  const diff = new Date(endDate).getTime() - Date.now();
+  return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+}
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+  });
+}
+
+const PODIUM_COLORS: Record<number, string> = {
+  1: 'warning',
+  2: 'medium',
+  3: 'tertiary',
+};
+const PODIUM_LABELS: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' };
+
+// ── Component ────────────────────────────────────────────────────────────────
+
 @Component({
   selector: 'app-leaderboard',
   templateUrl: 'leaderboard.page.html',
   styleUrls: ['leaderboard.page.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [
+    CommonModule,
+    IonContent,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonButton,
+    IonIcon,
+    IonItem,
+    IonLabel,
+    IonList,
+    IonListHeader,
+    IonNote,
+    IonChip,
+    IonBadge,
+    IonProgressBar,
+  ],
 })
-export class LeaderboardPage implements OnInit {
-  topThree: Player[] = [];
-  remainingPlayers: Player[] = [];
+export class LeaderboardPage {
+  readonly challenge = CHALLENGE;
+  readonly formatDate = formatDate;
 
-  ngOnInit() {
-    // Sample data - replace with your actual data source
-    const allPlayers: Player[] = [
-      {
-        rank: 1,
-        name: 'Emma Johnson',
-        points: 95,
-        image: 'https://randomuser.me/api/portraits/women/37.jpg',
-      },
-      {
-        rank: 2,
-        name: 'Liam Carter',
-        points: 90,
-        image: 'https://randomuser.me/api/portraits/men/12.jpg',
-      },
-      {
-        rank: 3,
-        name: 'Olivia Martinez',
-        points: 86,
-        image: 'https://randomuser.me/api/portraits/women/22.jpg',
-      },
-      {
-        rank: 4,
-        name: 'Noah Thompson',
-        points: 82,
-        image: 'https://randomuser.me/api/portraits/men/45.jpg',
-      },
-      {
-        rank: 5,
-        name: 'Sophia Williams',
-        points: 79,
-        image: 'https://randomuser.me/api/portraits/women/18.jpg',
-      },
-      {
-        rank: 6,
-        name: 'James Anderson',
-        points: 74,
-        image: 'https://randomuser.me/api/portraits/men/33.jpg',
-      },
-      {
-        rank: 7,
-        name: 'Isabella Moore',
-        points: 71,
-        image: 'https://randomuser.me/api/portraits/women/50.jpg',
-      },
-      {
-        rank: 8,
-        name: 'Benjamin Taylor',
-        points: 67,
-        image: 'https://randomuser.me/api/portraits/men/29.jpg',
-      },
-      {
-        rank: 9,
-        name: 'Mia Garcia',
-        points: 63,
-        image: 'https://randomuser.me/api/portraits/women/41.jpg',
-      },
-      {
-        rank: 10,
-        name: 'Lucas Rodriguez',
-        points: 60,
-        image: 'https://randomuser.me/api/portraits/men/52.jpg',
-      },
-    ];
+  // Sort once — participants already sorted in mock but this makes it safe
+  ranked = computed(() =>
+    [...this.challenge.participants].sort((a, b) => b.steps - a.steps),
+  );
 
-    this.topThree = allPlayers.slice(0, 3);
-    this.remainingPlayers = allPlayers.slice(3);
+  myEntry = computed(() => this.ranked().find((p) => p.isMe)!);
+  myRank = computed(() => this.ranked().findIndex((p) => p.isMe) + 1);
+  myPct = computed(() => this.pct(this.myEntry().steps));
+  daysLeft = computed(() => daysRemaining(this.challenge.endDate));
+
+  pct(steps: number): number {
+    return Math.min(
+      100,
+      Math.round((steps / this.challenge.targetSteps) * 100),
+    );
+  }
+
+  medal(position: number): string {
+    return PODIUM_LABELS[position];
+  }
+
+  firstName(name: string): string {
+    return name.split(' ')[0];
+  }
+
+  constructor(private router: Router) {
+    addIcons({
+      calendarOutline,
+      peopleOutline,
+      footstepsOutline,
+      timeOutline,
+      trophyOutline,
+      flagOutline,
+    });
+  }
+
+  goToProfile(participant: Participant) {
+    // if (participant.isFriend) {
+    this.router.navigate(['/friend', participant.id]);
+    // } else {
+    //   // Non-friends could open a lighter public profile — adjust to your routing
+    //   console.log('View profile', participant.id);
+    // }
   }
 }

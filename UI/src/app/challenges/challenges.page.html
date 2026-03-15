@@ -1,37 +1,133 @@
-<ion-header [translucent]="true">
+<ion-header class="ion-no-border">
   <ion-toolbar>
-    <ion-title> Desafios </ion-title>
+    <ion-title>Challenges</ion-title>
+  </ion-toolbar>
+
+  <ion-toolbar>
+    <ion-segment [value]="activeTab()" (ionChange)="onTabChange($event)">
+      <ion-segment-button value="all">All</ion-segment-button>
+      <ion-segment-button value="active">
+        <ion-icon name="flag-outline"></ion-icon>
+        Active
+      </ion-segment-button>
+      <ion-segment-button value="completed">
+        <ion-icon name="checkmark-circle"></ion-icon>
+        Done
+      </ion-segment-button>
+      <ion-segment-button value="upcoming">
+        <ion-icon name="time-outline"></ion-icon>
+        Upcoming
+      </ion-segment-button>
+    </ion-segment>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-    <ion-fab-button href="challenge/create">
-      <ion-icon name="add"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
-
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">Actividad</ion-title>
+      <ion-title size="large">Challenges</ion-title>
     </ion-toolbar>
   </ion-header>
 
-  @for(activity of activities; track activity.id ){
-  <ion-card [disabled]="!activity.active" href="challenge/{{activity.id}}">
-    <img
-      alt="Silhouette of mountains"
-      src="https://ionicframework.com/docs/img/demos/card-media.png"
-    />
+  <ion-searchbar
+    placeholder="Search challenges..."
+    [debounce]="200"
+    (ionInput)="onSearch($event)"
+    animated
+  ></ion-searchbar>
 
-    <ion-card-header>
-      <ion-card-title>{{activity.title}}</ion-card-title>
-      <ion-card-subtitle>{{activity.goal}}</ion-card-subtitle>
-      <small> {{activity.from}} - {{activity.to}}</small>
-    </ion-card-header>
+  <!-- List -->
+  <ion-list [inset]="true">
+    <ion-list-header>
+      <ion-label>{{ tabLabel() }}</ion-label>
+      <ion-badge [color]="activeTab() === 'active' ? 'primary' : 'medium'">
+        {{ filtered().length }}
+      </ion-badge>
+    </ion-list-header>
 
-    <ion-card-content> {{activity.description}} </ion-card-content>
-    <ion-button fill="clear">Unirse</ion-button>
-  </ion-card>
-  }
+    @for (c of filtered(); track c.id) {
+    <ion-item
+      [button]="true"
+      lines="full"
+      (click)="goToChallenge(c)"
+      [style.opacity]="c.status === 'upcoming' ? 0.6 : 1"
+    >
+      <ion-thumbnail slot="start">
+        <ion-img [src]="c.coverUrl" [alt]="c.title"></ion-img>
+      </ion-thumbnail>
+
+      <ion-label>
+        <h2>
+          {{ c.title }}
+          <ion-badge
+            [color]="STATUS_COLOR[c.status]"
+            style="margin-inline-start: 6px"
+          >
+            {{ c.status }}
+          </ion-badge>
+        </h2>
+        <p>{{ c.description }}</p>
+
+        @if (c.status !== 'upcoming') {
+        <ion-progress-bar
+          class="ion-margin-top"
+          [value]="pct(c) / 100"
+          [color]="c.status === 'completed' ? 'success' : 'primary'"
+        ></ion-progress-bar>
+
+        <p class="ion-margin-top">
+          <ion-icon
+            name="footsteps-outline"
+            style="vertical-align: middle; font-size: 12px"
+          ></ion-icon>
+          {{ pct(c) }}% &nbsp;·&nbsp;
+          <ion-icon
+            name="people-outline"
+            style="vertical-align: middle; font-size: 12px"
+          ></ion-icon>
+          {{ c.participants }} @if (c.myRank > 0) { &nbsp;·&nbsp;
+          <ion-icon
+            name="ribbon-outline"
+            style="vertical-align: middle; font-size: 12px"
+          ></ion-icon>
+          #{{ c.myRank }} } @if (c.status === 'active') { &nbsp;·&nbsp;
+          <ion-icon
+            name="time-outline"
+            style="vertical-align: middle; font-size: 12px"
+          ></ion-icon>
+          {{ c.daysLeft }}d left }
+        </p>
+        } @else {
+        <p>
+          <ion-icon
+            name="time-outline"
+            style="vertical-align: middle; font-size: 12px"
+          ></ion-icon>
+          Starts {{ c.startDate }}
+        </p>
+        }
+      </ion-label>
+    </ion-item>
+    } @if (filtered().length === 0) {
+    <ion-item lines="none">
+      <ion-label class="ion-text-center" color="medium">
+        <ion-icon
+          name="trophy-outline"
+          style="font-size: 40px; display: block; margin: 16px auto 8px"
+        ></ion-icon>
+        <p>No challenges found</p>
+      </ion-label>
+    </ion-item>
+    }
+  </ion-list>
+
+  <!-- Spacer so FAB doesn't cover last item -->
+  <div style="height: 80px"></div>
+
+  <!-- FAB -->
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button (click)="goToCreate()">
+      <ion-icon name="add-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>

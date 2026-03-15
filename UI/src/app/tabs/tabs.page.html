@@ -14,5 +14,12 @@
       <ion-icon aria-hidden="true" name="trophy"></ion-icon>
       <ion-label>Desafios</ion-label>
     </ion-tab-button>
+
+    <ion-tab-button tab="profile" href="/tabs/profile">
+      <div class="avatar-tab" [class]="'avatar-tab--' + user.avatarColor">
+        {{ user.initials }}
+      </div>
+      <ion-label>Profile</ion-label>
+    </ion-tab-button>
   </ion-tab-bar>
 </ion-tabs>
