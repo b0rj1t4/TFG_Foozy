@@ -54,6 +54,16 @@ export const routes: Routes = [
     ],
   },
   {
+    path: 'profile',
+    loadComponent: () =>
+      import('./profile/profile.page').then((m) => m.ProfilePage),
+  },
+  {
+    path: 'friend/:id',
+    loadComponent: () =>
+      import('./friend/friend.page').then((m) => m.FriendPage),
+  },
+  {
     path: '',
     redirectTo: 'home',
     pathMatch: 'full',

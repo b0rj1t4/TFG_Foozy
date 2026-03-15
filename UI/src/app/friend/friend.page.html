@@ -1,0 +1,178 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/profile"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ friend.name }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button color="danger" fill="clear" (click)="removeFriend()">
+        <ion-icon slot="icon-only" name="person-remove-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Hero: avatar + name + steps -->
+  <div class="ion-text-center ion-padding">
+    <div
+      class="avatar-circle ion-margin-auto"
+      [class]="'avatar--' + friend.avatarColor"
+    >
+      {{ friend.avatarInitials }}
+    </div>
+    <h2 class="ion-no-margin ion-padding-top">{{ friend.name }}</h2>
+
+    <div class="chips-row ion-padding-top">
+      <ion-chip color="primary" outline>
+        <ion-icon name="footsteps-outline"></ion-icon>
+        <ion-label>{{ friend.stepsToday | number }} today</ion-label>
+      </ion-chip>
+      <ion-chip color="medium" outline>
+        <ion-icon name="walk-outline"></ion-icon>
+        <ion-label>{{ friend.totalSteps | number }} total</ion-label>
+      </ion-chip>
+    </div>
+  </div>
+
+  <!-- Rank comparison -->
+  <ion-list [inset]="true">
+    <ion-list-header>
+      <ion-label>Rank vs You</ion-label>
+    </ion-list-header>
+
+    <ion-item lines="none">
+      <ion-grid class="ion-no-padding">
+        <ion-row class="ion-align-items-center">
+          <!-- Me -->
+          <ion-col class="ion-text-center">
+            <ion-note>You</ion-note>
+            <h2
+              class="rank-num"
+              [class.rank-num--winning]="me.rank > friend.rank"
+            >
+              #{{ me.rank }}
+            </h2>
+            <p class="steps-sub">{{ me.stepsToday | number }} steps</p>
+          </ion-col>
+
+          <!-- VS divider -->
+          <ion-col size="2" class="ion-text-center">
+            <span class="vs-label">VS</span>
+          </ion-col>
+
+          <!-- Friend -->
+          <ion-col class="ion-text-center">
+            <ion-note>{{ friend.name.split(' ')[0] }}</ion-note>
+            <h2
+              class="rank-num"
+              [class.rank-num--winning]="friend.rank < me.rank"
+            >
+              #{{ friend.rank }}
+            </h2>
+            <p class="steps-sub">{{ friend.stepsToday | number }} steps</p>
+          </ion-col>
+        </ion-row>
+
+        <!-- Steps today bar comparison -->
+        <ion-row class="ion-padding-top ion-padding-bottom">
+          <ion-col>
+            <ion-note>Steps today</ion-note>
+            <div class="bar-row ion-margin-top">
+              <div class="bar-label">You</div>
+              <div class="bar-track">
+                <div
+                  class="bar-fill bar-fill--me"
+                  [style.width]="myStepsPct() + '%'"
+                ></div>
+              </div>
+              <div class="bar-value">{{ me.stepsToday | number }}</div>
+            </div>
+            <div class="bar-row ion-margin-top">
+              <div class="bar-label">{{ friend.name.split(' ')[0] }}</div>
+              <div class="bar-track">
+                <div
+                  class="bar-fill bar-fill--friend"
+                  [style.width]="friendStepsPct() + '%'"
+                ></div>
+              </div>
+              <div class="bar-value">{{ friend.stepsToday | number }}</div>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+  </ion-list>
+
+  <!-- Shared challenges -->
+  <ion-list [inset]="true">
+    <ion-list-header>
+      <ion-label>Shared Challenges</ion-label>
+      <ion-badge color="primary">{{ sharedChallenges.length }}</ion-badge>
+    </ion-list-header>
+
+    @for (c of sharedChallenges; track c.id) {
+    <ion-item lines="full">
+      <ion-icon
+        slot="start"
+        name="trophy-outline"
+        [color]="c.status === 'completed' ? 'success' : 'primary'"
+      ></ion-icon>
+      <ion-label>
+        <h2>{{ c.title }}</h2>
+
+        <!-- My bar -->
+        <div class="bar-row bar-row--sm ion-margin-top">
+          <div class="bar-label-sm">You</div>
+          <div class="bar-track">
+            <div
+              class="bar-fill bar-fill--me"
+              [style.width]="pct(c.mySteps, c.targetSteps) + '%'"
+            ></div>
+          </div>
+          <div class="bar-pct">{{ pct(c.mySteps, c.targetSteps) }}%</div>
+        </div>
+
+        <!-- Friend bar -->
+        <div class="bar-row bar-row--sm ion-margin-top">
+          <div class="bar-label-sm">{{ friend.name.split(' ')[0] }}</div>
+          <div class="bar-track">
+            <div
+              class="bar-fill bar-fill--friend"
+              [style.width]="pct(c.friendSteps, c.targetSteps) + '%'"
+            ></div>
+          </div>
+          <div class="bar-pct">{{ pct(c.friendSteps, c.targetSteps) }}%</div>
+        </div>
+
+        <p class="ion-margin-top">Ends {{ c.endDate }}</p>
+      </ion-label>
+    </ion-item>
+    }
+  </ion-list>
+
+  <!-- Their achievements -->
+  <ion-list [inset]="true">
+    <ion-list-header>
+      <ion-label>Achievements</ion-label>
+      <ion-badge color="success">{{ unlockedCount() }}</ion-badge>
+    </ion-list-header>
+
+    @for (a of achievements; track a.id) {
+    <ion-item lines="full" [style.opacity]="a.status === 'locked' ? 0.4 : 1">
+      <ion-icon
+        slot="start"
+        [name]="a.status === 'locked' ? 'lock-closed-outline' : a.icon"
+        [color]="a.status === 'locked' ? 'medium' : 'warning'"
+      ></ion-icon>
+      <ion-label>
+        <h2>{{ a.title }}</h2>
+        <p>{{ a.description }}</p>
+      </ion-label>
+      @if (a.unlockedAt) {
+      <ion-note slot="end">{{ a.unlockedAt }}</ion-note>
+      }
+    </ion-item>
+    }
+  </ion-list>
+</ion-content>

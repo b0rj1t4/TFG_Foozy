@@ -1,0 +1,81 @@
+/* Avatar large */
+.avatar-wrap {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.avatar-circle {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+/* Avatar small (ion-avatar) */
+.avatar-sm {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Color variants — uses Ionic color tokens */
+.avatar-circle--primary {
+  background: var(--ion-color-primary-tint);
+  color: var(--ion-color-primary-shade);
+}
+.avatar-circle--success {
+  background: var(--ion-color-success-tint);
+  color: var(--ion-color-success-shade);
+}
+.avatar-circle--tertiary {
+  background: var(--ion-color-tertiary-tint);
+  color: var(--ion-color-tertiary-shade);
+}
+.avatar-circle--warning {
+  background: var(--ion-color-warning-tint);
+  color: var(--ion-color-warning-shade);
+}
+.avatar-circle--danger {
+  background: var(--ion-color-danger-tint);
+  color: var(--ion-color-danger-shade);
+}
+
+.avatar-edit-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 22px;
+}
+
+.chips-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Native input inside ion-item */
+.native-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  color: var(--ion-text-color);
+  padding: 8px 0;
+}
