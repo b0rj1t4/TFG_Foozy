@@ -1,0 +1,115 @@
+<ion-content [fullscreen]="true">
+  <div class="wrapper">
+    <!-- Logo / branding -->
+    <div class="brand">
+      <div class="brand-icon">
+        <ion-icon name="footsteps-outline"></ion-icon>
+      </div>
+      <h1 class="brand-name">StepChallenge</h1>
+      <p class="brand-sub">Compete. Move. Win.</p>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <ion-list [inset]="true">
+        <ion-item>
+          <ion-icon name="mail-outline" slot="start" color="medium"></ion-icon>
+          <ion-input
+            formControlName="email"
+            label="Email"
+            labelPlacement="stacked"
+            placeholder="you@example.com"
+            type="email"
+            inputmode="email"
+            autocomplete="email"
+            clearInput
+          ></ion-input>
+        </ion-item>
+        @if (touched('email') && form.get('email')?.invalid) {
+        <ion-note color="danger" class="ion-padding-start">
+          Enter a valid email
+        </ion-note>
+        }
+
+        <ion-item>
+          <ion-icon
+            name="lock-closed-outline"
+            slot="start"
+            color="medium"
+          ></ion-icon>
+          <ion-input
+            formControlName="password"
+            label="Password"
+            labelPlacement="stacked"
+            placeholder="Your password"
+            [type]="showPassword() ? 'text' : 'password'"
+            autocomplete="current-password"
+          ></ion-input>
+          <ion-button
+            slot="end"
+            fill="clear"
+            color="medium"
+            (click)="showPassword.set(!showPassword())"
+          >
+            <ion-icon
+              slot="icon-only"
+              [name]="showPassword() ? 'eye-off-outline' : 'eye-outline'"
+            ></ion-icon>
+          </ion-button>
+        </ion-item>
+        @if (touched('password') && form.get('password')?.invalid) {
+        <ion-note color="danger" class="ion-padding-start">
+          Password is required
+        </ion-note>
+        }
+      </ion-list>
+
+      <!-- Server error -->
+      @if (serverError()) {
+      <ion-note
+        color="danger"
+        class="ion-padding-horizontal ion-padding-top block"
+      >
+        {{ serverError() }}
+      </ion-note>
+      }
+
+      <!-- Forgot password -->
+      <div class="ion-text-end ion-padding-horizontal">
+        <ion-button
+          fill="clear"
+          color="medium"
+          size="small"
+          (click)="forgotPassword()"
+        >
+          Forgot password?
+        </ion-button>
+      </div>
+
+      <!-- Sign in -->
+      <div class="ion-padding-horizontal">
+        <ion-button
+          expand="block"
+          type="submit"
+          [disabled]="form.invalid || loading()"
+        >
+          @if (loading()) {
+          <ion-spinner name="crescent" slot="start"></ion-spinner>
+          } Sign In
+        </ion-button>
+      </div>
+    </form>
+
+    <!-- Sign up -->
+    <div class="ion-padding-horizontal ion-padding-top">
+      <ion-button
+        expand="block"
+        fill="outline"
+        color="medium"
+        (click)="goToSignup()"
+      >
+        Create an account
+      </ion-button>
+    </div>
+  </div>
+</ion-content>

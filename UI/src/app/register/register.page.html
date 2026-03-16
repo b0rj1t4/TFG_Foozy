@@ -1,0 +1,199 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>Create Account</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="ion-padding-horizontal ion-padding-top">
+    <!-- Avatar picker -->
+    <div class="avatar-section">
+      <div class="avatar-wrap" (click)="triggerUpload()">
+        @if (avatarPreview()) {
+        <img [src]="avatarPreview()" class="avatar-img" alt="Avatar" />
+        } @else {
+        <div class="avatar-initials" [class]="'avatar--' + selectedColor()">
+          {{ initials() || '?' }}
+        </div>
+        }
+
+        <div class="avatar-badge">
+          <ion-icon name="camera-outline"></ion-icon>
+        </div>
+
+        <input
+          #fileInput
+          type="file"
+          accept="image/*"
+          style="display: none"
+          (change)="onFileChange($event)"
+        />
+      </div>
+
+      @if (avatarPreview()) {
+      <ion-button
+        fill="clear"
+        color="medium"
+        size="small"
+        (click)="clearAvatar()"
+      >
+        <ion-icon slot="start" name="close-circle"></ion-icon>
+        Remove
+      </ion-button>
+      } @else {
+      <!-- Color picker -->
+      <div class="color-row">
+        @for (color of avatarColors; track color) {
+        <div
+          class="color-dot"
+          [class]="'color-dot--' + color"
+          [class.color-dot--active]="selectedColor() === color"
+          (click)="selectedColor.set(color)"
+        ></div>
+        }
+      </div>
+      }
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <ion-list [inset]="true" class="ion-margin-top">
+        <!-- Name -->
+        <ion-item>
+          <ion-icon
+            name="person-outline"
+            slot="start"
+            color="medium"
+          ></ion-icon>
+          <ion-input
+            formControlName="name"
+            label="Full name"
+            labelPlacement="stacked"
+            placeholder="Alex Ramos"
+            autocomplete="name"
+            clearInput
+          ></ion-input>
+        </ion-item>
+        @if (touched('name') && form.get('name')?.errors?.['required']) {
+        <ion-note color="danger" class="ion-padding-start"
+          >Name is required</ion-note
+        >
+        }
+
+        <!-- Email -->
+        <ion-item>
+          <ion-icon name="mail-outline" slot="start" color="medium"></ion-icon>
+          <ion-input
+            formControlName="email"
+            label="Email"
+            labelPlacement="stacked"
+            placeholder="you@example.com"
+            type="email"
+            autocomplete="email"
+            inputmode="email"
+            clearInput
+          ></ion-input>
+        </ion-item>
+        @if (touched('email') && form.get('email')?.errors?.['email']) {
+        <ion-note color="danger" class="ion-padding-start"
+          >Enter a valid email</ion-note
+        >
+        }
+
+        <!-- Password -->
+        <ion-item>
+          <ion-icon
+            name="lock-closed-outline"
+            slot="start"
+            color="medium"
+          ></ion-icon>
+          <ion-input
+            formControlName="password"
+            label="Password"
+            labelPlacement="stacked"
+            placeholder="At least 6 characters"
+            [type]="showPassword() ? 'text' : 'password'"
+            autocomplete="new-password"
+          ></ion-input>
+          <ion-button
+            slot="end"
+            fill="clear"
+            color="medium"
+            (click)="showPassword.set(!showPassword())"
+          >
+            <ion-icon
+              slot="icon-only"
+              [name]="showPassword() ? 'eye-off-outline' : 'eye-outline'"
+            ></ion-icon>
+          </ion-button>
+        </ion-item>
+        @if (touched('password') && form.get('password')?.errors?.['minlength'])
+        {
+        <ion-note color="danger" class="ion-padding-start"
+          >Minimum 6 characters</ion-note
+        >
+        }
+
+        <!-- Confirm password -->
+        <ion-item>
+          <ion-icon
+            name="lock-closed-outline"
+            slot="start"
+            color="medium"
+          ></ion-icon>
+          <ion-input
+            formControlName="confirmPassword"
+            label="Confirm password"
+            labelPlacement="stacked"
+            placeholder="Repeat password"
+            [type]="showConfirm() ? 'text' : 'password'"
+            autocomplete="new-password"
+          ></ion-input>
+          <ion-button
+            slot="end"
+            fill="clear"
+            color="medium"
+            (click)="showConfirm.set(!showConfirm())"
+          >
+            <ion-icon
+              slot="icon-only"
+              [name]="showConfirm() ? 'eye-off-outline' : 'eye-outline'"
+            ></ion-icon>
+          </ion-button>
+        </ion-item>
+        @if (touched('confirmPassword') &&
+        form.get('confirmPassword')?.errors?.['mismatch']) {
+        <ion-note color="danger" class="ion-padding-start"
+          >Passwords don't match</ion-note
+        >
+        }
+      </ion-list>
+
+      <!-- Submit -->
+      <div class="ion-padding ion-padding-top">
+        <ion-button
+          expand="block"
+          type="submit"
+          [disabled]="form.invalid || loading()"
+        >
+          @if (loading()) {
+          <ion-spinner name="crescent" slot="start"></ion-spinner>
+          } Create Account
+        </ion-button>
+
+        <ion-button
+          expand="block"
+          fill="clear"
+          color="medium"
+          class="ion-margin-top"
+          (click)="goToLogin()"
+        >
+          Already have an account? Sign in
+        </ion-button>
+      </div>
+    </form>
+  </div>
+</ion-content>

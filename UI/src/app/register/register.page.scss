@@ -1,0 +1,110 @@
+.avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0 4px;
+}
+
+.avatar-wrap {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  cursor: pointer;
+}
+
+.avatar-img {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatar-initials {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+/* Colour variants — same tokens used across the whole app */
+.avatar--primary {
+  background: var(--ion-color-primary-tint);
+  color: var(--ion-color-primary-shade);
+}
+.avatar--success {
+  background: var(--ion-color-success-tint);
+  color: var(--ion-color-success-shade);
+}
+.avatar--tertiary {
+  background: var(--ion-color-tertiary-tint);
+  color: var(--ion-color-tertiary-shade);
+}
+.avatar--warning {
+  background: var(--ion-color-warning-tint);
+  color: var(--ion-color-warning-shade);
+}
+.avatar--danger {
+  background: var(--ion-color-danger-tint);
+  color: var(--ion-color-danger-shade);
+}
+
+/* Camera badge */
+.avatar-badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--ion-color-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  border: 2px solid var(--ion-background-color, white);
+}
+
+/* Color dot picker */
+.color-row {
+  display: flex;
+  gap: 10px;
+}
+
+.color-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition:
+    transform 0.15s,
+    border-color 0.15s;
+}
+
+.color-dot--active {
+  transform: scale(1.25);
+  border-color: var(--ion-color-medium);
+}
+
+.color-dot--primary {
+  background: var(--ion-color-primary);
+}
+.color-dot--success {
+  background: var(--ion-color-success);
+}
+.color-dot--tertiary {
+  background: var(--ion-color-tertiary);
+}
+.color-dot--warning {
+  background: var(--ion-color-warning);
+}
+.color-dot--danger {
+  background: var(--ion-color-danger);
+}
