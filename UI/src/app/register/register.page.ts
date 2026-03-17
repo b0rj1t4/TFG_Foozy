@@ -33,6 +33,7 @@ import {
   mailOutline,
   personOutline,
 } from 'ionicons/icons';
+import { AuthService } from '../services/auth';
 
 // Match backend avatar color options
 const AVATAR_COLORS = [
@@ -97,17 +98,8 @@ export class RegisterPage {
   constructor(
     private fb: FormBuilder,
     private router: Router,
+    private auth: AuthService,
   ) {
-    addIcons({
-      cameraOutline,
-      closeCircle,
-      eyeOutline,
-      eyeOffOutline,
-      personOutline,
-      mailOutline,
-      lockClosedOutline,
-    });
-
     this.form = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
@@ -152,27 +144,30 @@ export class RegisterPage {
 
     this.loading.set(true);
 
-    try {
-      const { name, email, password } = this.form.value;
+    const { name, email, password } = this.form.value;
 
-      const payload = {
+    this.auth
+      .register({
         name,
         email,
         password,
         avatarColor: this.selectedColor(),
-        // avatarUrl: this.avatarPreview() — send to your upload endpoint first
-      };
-
-      // TODO: call AuthService.register(payload)
-      console.log('Register payload:', payload);
-
-      // On success navigate to main
-      this.router.navigateByUrl('/tabs/activity', { replaceUrl: true });
-    } catch (err) {
-      console.error(err);
-    } finally {
-      this.loading.set(false);
-    }
+      })
+      .subscribe({
+        next: () => {
+          // If there's an avatar file, upload it right after registration
+          if (this.avatarPreview()) {
+            // Fetch the file from the input and call userService.updateProfileWithAvatar()
+            // For now navigate straight to the app
+          }
+          this.router.navigateByUrl('/tabs/activity', { replaceUrl: true });
+        },
+        error: (err) => {
+          console.error('Register error', err);
+          this.loading.set(false);
+        },
+        complete: () => this.loading.set(false),
+      });
   }
 
   goToLogin() {

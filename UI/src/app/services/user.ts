@@ -158,39 +158,39 @@ export class UserService {
    * POST /friends/:id
    * Adds a friend (mutual — both users are linked).
    */
-  addFriend(userId: string): Observable<{ message: string }> {
-    return this.api.post(`/friends/${userId}`).pipe(
-      tap(() => {
-        // Optimistically increment the friends array on the local signal
-        const user = this.currentUser();
-        if (user) {
-          this.currentUser.set({
-            ...user,
-            friends: [...user.friends, userId],
-          });
-        }
-      }),
-    );
-  }
+  // addFriend(userId: string): Observable<{ message: string }> {
+  //   return this.api.post(`/friends/${userId}`).pipe(
+  //     tap(() => {
+  //       // Optimistically increment the friends array on the local signal
+  //       const user = this.currentUser();
+  //       if (user) {
+  //         this.currentUser.set({
+  //           ...user,
+  //           friends: [...user.friends, userId],
+  //         });
+  //       }
+  //     }),
+  //   );
+  // }
 
   /**
    * DELETE /friends/:id
    * Removes a friend (mutual).
    */
-  removeFriend(userId: string): Observable<{ message: string }> {
-    return this.api.delete(`/friends/${userId}`).pipe(
-      tap(() => {
-        // Optimistically remove from the local signal
-        const user = this.currentUser();
-        if (user) {
-          this.currentUser.set({
-            ...user,
-            friends: user.friends.filter((id) => id !== userId),
-          });
-        }
-      }),
-    );
-  }
+  // removeFriend(userId: string): Observable<{ message: string }> {
+  //   return this.api.delete(`/friends/${userId}`).pipe(
+  //     tap(() => {
+  //       // Optimistically remove from the local signal
+  //       const user = this.currentUser();
+  //       if (user) {
+  //         this.currentUser.set({
+  //           ...user,
+  //           friends: user.friends.filter((id) => id !== userId),
+  //         });
+  //       }
+  //     }),
+  //   );
+  // }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 

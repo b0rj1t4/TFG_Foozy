@@ -20,6 +20,10 @@ export class ApiService {
     return this.http.post<T>(`${this.base}${path}`, body);
   }
 
+  postMultipart<T>(path: string, formData: FormData): Observable<T> {
+    return this.http.post<T>(`${this.base}${path}`, formData);
+  }
+
   put<T>(path: string, body: unknown = {}): Observable<T> {
     return this.http.put<T>(`${this.base}${path}`, body);
   }

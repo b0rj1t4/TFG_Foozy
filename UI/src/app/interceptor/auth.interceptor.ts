@@ -8,8 +8,8 @@ import {
 import { from, throwError, EMPTY } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import { TokenStorageService } from './token-storage.service';
 import { environment } from '../../environments/environment';
+import { TokenStorageService } from '../services/token';
 
 // Tracks whether a refresh is already in flight so parallel 401s don't
 // each trigger their own refresh call
@@ -18,7 +18,7 @@ let isRefreshing = false;
 export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
   next: HttpHandlerFn,
-) => {
+): any => {
   const tokenStorage = inject(TokenStorageService);
   const router = inject(Router);
 

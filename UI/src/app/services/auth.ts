@@ -4,6 +4,9 @@ import { Observable, from, tap, switchMap } from 'rxjs';
 import { ApiService } from './api';
 import { TokenStorageService } from './token';
 import { UserService, User } from './user';
+import { ChallengeService } from './challenges';
+import { StepsService } from './steps';
+import { AchievementService } from './achievement';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -51,6 +54,9 @@ export class AuthService {
     private api: ApiService,
     private tokenStorage: TokenStorageService,
     private userService: UserService,
+    private challengeService: ChallengeService,
+    private stepsService: StepsService,
+    private achievementService: AchievementService,
     private router: Router,
   ) {}
 
@@ -162,6 +168,9 @@ export class AuthService {
   private async clearSession(): Promise<void> {
     await this.tokenStorage.clearTokens();
     this.userService.clearUser();
+    this.challengeService.clear();
+    this.stepsService.clear();
+    this.achievementService.clear();
     this.redirectToLogin();
   }
 

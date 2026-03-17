@@ -17,6 +17,7 @@ import {
   IonNote,
   IonSpinner,
 } from '@ionic/angular/standalone';
+import { AuthService } from '../services/auth';
 
 @Component({
   selector: 'app-login',
@@ -45,6 +46,7 @@ export class LoginPage {
   constructor(
     private fb: FormBuilder,
     private router: Router,
+    private auth: AuthService,
   ) {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -65,20 +67,18 @@ export class LoginPage {
     this.loading.set(true);
     this.serverError.set(null);
 
-    try {
-      const { email, password } = this.form.value;
-
-      // TODO: replace with AuthService.login({ email, password })
-      console.log('Login payload:', { email, password });
-
-      // Store tokens then navigate
-      // localStorage.setItem('accessToken', response.accessToken);
-      this.router.navigateByUrl('/tabs/activity', { replaceUrl: true });
-    } catch (err: any) {
-      this.serverError.set(err?.error?.message ?? 'Invalid email or password');
-    } finally {
-      this.loading.set(false);
-    }
+    this.auth.login(this.form.value).subscribe({
+      next: () => {
+        this.router.navigateByUrl('/tabs/activity', { replaceUrl: true });
+      },
+      error: (err) => {
+        this.serverError.set(
+          err?.error?.message ?? 'Invalid email or password',
+        );
+        this.loading.set(false);
+      },
+      complete: () => this.loading.set(false),
+    });
   }
 
   forgotPassword() {
