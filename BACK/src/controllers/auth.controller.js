@@ -26,6 +26,7 @@ const register = async (req, res, next) => {
 
     res.status(201).json({ user, accessToken, refreshToken });
   } catch (err) {
+    console.log('----', err, '----');
     next(err);
   }
 };

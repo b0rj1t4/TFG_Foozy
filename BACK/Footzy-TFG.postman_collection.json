@@ -1,0 +1,915 @@
+{
+	"info": {
+		"_postman_id": "924dcfad-7d77-4294-bb12-94bc2b5886cd",
+		"name": "Footzy-TFG",
+		"description": "Full REST API collection for the StepChallenge app. \n\n**Setup:**\n1. Set the `baseUrl` variable to your server (default: `http://localhost:3000/api`)\n2. Run **Auth / Register** or **Auth / Login** — the access token is saved automatically to the `accessToken` variable\n3. All protected routes use that token via the collection-level Authorization header",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29983445"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.accessToken)  pm.collectionVariables.set('accessToken',  res.accessToken);",
+									"if (res.refreshToken) pm.collectionVariables.set('refreshToken', res.refreshToken);",
+									"if (res.user?._id)    pm.collectionVariables.set('userId',       res.user._id);",
+									"pm.test('Status 201', () => pm.response.to.have.status(201));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Alex Ramos\",\n  \"email\": \"alex@example.com\",\n  \"password\": \"password123\",\n  \"avatarColor\": \"primary\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.accessToken)  pm.collectionVariables.set('accessToken',  res.accessToken);",
+									"if (res.refreshToken) pm.collectionVariables.set('refreshToken', res.refreshToken);",
+									"if (res.user?._id)    pm.collectionVariables.set('userId',       res.user._id);",
+									"pm.test('Status 200', () => pm.response.to.have.status(200));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"alex@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.accessToken)  pm.collectionVariables.set('accessToken',  res.accessToken);",
+									"if (res.refreshToken) pm.collectionVariables.set('refreshToken', res.refreshToken);",
+									"pm.test('Status 200', () => pm.response.to.have.status(200));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/refresh",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get My Profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update My Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Alex Ramos Updated\",\n  \"avatarColor\": \"success\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Avatar (multipart)",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "avatar",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "name",
+									"value": "Alex Ramos",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/search?q=miguel",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"search"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "miguel"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{friendId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{friendId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Friends",
+			"item": [
+				{
+					"name": "Get Friends",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/friends",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"friends"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Friend Profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/friends/{{friendId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"friends",
+								"{{friendId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Friend",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/friends/{{friendId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"friends",
+								"{{friendId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Friend",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/friends/{{friendId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"friends",
+								"{{friendId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Challenges",
+			"item": [
+				{
+					"name": "Get All Challenges",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/challenges",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"challenges"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Active Challenges",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/challenges?status=active",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"challenges"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "active"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Joined Challenges",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/challenges?joined=true",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"challenges"
+							],
+							"query": [
+								{
+									"key": "joined",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Challenge (JSON)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.challenge?._id) pm.collectionVariables.set('challengeId', res.challenge._id);",
+									"pm.test('Status 201', () => pm.response.to.have.status(201));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"March Madness\",\n  \"description\": \"Hit 200,000 steps before the month is over!\",\n  \"targetSteps\": 200000,\n  \"startDate\": \"2026-03-01\",\n  \"endDate\": \"2026-03-31\",\n  \"coverUrl\": \"https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=800\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/challenges",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"challenges"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Challenge (with cover image)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.challenge?._id) pm.collectionVariables.set('challengeId', res.challenge._id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "cover",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "title",
+									"value": "Spring Sprint",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "300k steps in April",
+									"type": "text"
+								},
+								{
+									"key": "targetSteps",
+									"value": "300000",
+									"type": "text"
+								},
+								{
+									"key": "startDate",
+									"value": "2026-04-01",
+									"type": "text"
+								},
+								{
+									"key": "endDate",
+									"value": "2026-04-30",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/challenges",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"challenges"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Challenge By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/challenges/{{challengeId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"challenges",
+								"{{challengeId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Challenge",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"March Madness (Updated)\",\n  \"targetSteps\": 250000\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/challenges/{{challengeId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"challenges",
+								"{{challengeId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Challenge",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/challenges/{{challengeId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"challenges",
+								"{{challengeId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Join Challenge",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/challenges/{{challengeId}}/join",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"challenges",
+								"{{challengeId}}",
+								"join"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Challenge Ranking",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/challenges/{{challengeId}}/ranking",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"challenges",
+								"{{challengeId}}",
+								"ranking"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Steps",
+			"item": [
+				{
+					"name": "Log Steps (today)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"steps\": 8500\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/steps",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"steps"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Log Steps (specific date)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"steps\": 12000,\n  \"date\": \"2026-03-10\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/steps",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"steps"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Steps (today)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/steps/me?period=today",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"steps",
+								"me"
+							],
+							"query": [
+								{
+									"key": "period",
+									"value": "today"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Steps (this month)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/steps/me?period=month",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"steps",
+								"me"
+							],
+							"query": [
+								{
+									"key": "period",
+									"value": "month"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Steps (this year)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/steps/me?period=year",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"steps",
+								"me"
+							],
+							"query": [
+								{
+									"key": "period",
+									"value": "year"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Friend Steps",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/steps/{{friendId}}?period=month",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"steps",
+								"{{friendId}}"
+							],
+							"query": [
+								{
+									"key": "period",
+									"value": "month"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Achievements",
+			"item": [
+				{
+					"name": "Get All Achievements (with my status)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/achievements",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"achievements"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Unlocked Achievements",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/achievements/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"achievements",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Friend Achievements",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/achievements/{{friendId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"achievements",
+								"{{friendId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Health",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/health",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"health"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{accessToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000/api",
+			"type": "string"
+		},
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refreshToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "friendId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "challengeId",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

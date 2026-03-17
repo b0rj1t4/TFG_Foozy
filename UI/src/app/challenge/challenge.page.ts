@@ -225,9 +225,9 @@ const PODIUM_LABELS: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' 
 // ── Component ────────────────────────────────────────────────────────────────
 
 @Component({
-  selector: 'app-leaderboard',
-  templateUrl: 'leaderboard.page.html',
-  styleUrls: ['leaderboard.page.scss'],
+  selector: 'app-challenge',
+  templateUrl: 'challenge.page.html',
+  styleUrls: ['challenge.page.scss'],
   standalone: true,
   imports: [
     CommonModule,
@@ -247,7 +247,7 @@ const PODIUM_LABELS: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' 
     IonProgressBar,
   ],
 })
-export class LeaderboardPage {
+export class ChallengePage {
   readonly challenge = CHALLENGE;
   readonly formatDate = formatDate;
 
@@ -276,16 +276,7 @@ export class LeaderboardPage {
     return name.split(' ')[0];
   }
 
-  constructor(private router: Router) {
-    addIcons({
-      calendarOutline,
-      peopleOutline,
-      footstepsOutline,
-      timeOutline,
-      trophyOutline,
-      flagOutline,
-    });
-  }
+  constructor(private router: Router) {}
 
   goToProfile(participant: Participant) {
     this.router.navigate(['/friend', participant.id]);

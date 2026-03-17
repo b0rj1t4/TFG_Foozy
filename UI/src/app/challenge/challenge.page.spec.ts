@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { ExploreContainerComponentModule } from '../explore-container/explore-container.module';
 
-import { LeaderboardPage } from './leaderboard.page';
+import { LeaderboardPage } from './challenge.page';
 
 describe('Tab3Page', () => {
   let component: LeaderboardPage;

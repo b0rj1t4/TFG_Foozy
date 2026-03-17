@@ -29,6 +29,6 @@
 <p style="font-family: 'Calibri'; font-size:20px; margin: 0 auto;" align="center"><strong>CÓDIGO</strong></p>
 
 <div align="center">
-  	<a href="https://github.com/b0rj1t4/TFG_Foozy/tree/main/UI" target="_blank"><img src="https://img.shields.io/badge/Backend-V0.0.0-512BD5?logo=Node.js&logoColor=white"></a>
+  	<a href="https://github.com/b0rj1t4/TFG_Foozy/tree/main/BACK" target="_blank"><img src="https://img.shields.io/badge/Backend-V0.0.0-512BD5?logo=Node.js&logoColor=white"></a>
   	<a href="https://github.com/b0rj1t4/TFG_Foozy/tree/main/UI" target="_blank"><img src="https://img.shields.io/badge/Frontend-V0.0.1-09D9FD?logo=Ionic&logoColor=white"></a>
 </div>
