@@ -4,7 +4,7 @@ import { ApiService } from './api';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-export type StepPeriod = 'today' | 'month' | 'year';
+export type StepPeriod = 'today' | 'week' | 'month' | 'year';
 
 export interface StepRecord {
   _id: string;
@@ -31,11 +31,13 @@ export interface LogStepsPayload {
 export class StepsService {
   // Cached summaries per period — components read these signals directly
   today = signal<StepSummary>({ steps: [], total: 0 });
+  week = signal<StepSummary>({ steps: [], total: 0 });
   month = signal<StepSummary>({ steps: [], total: 0 });
   year = signal<StepSummary>({ steps: [], total: 0 });
 
   // Convenience computed values
   stepsToday = computed(() => this.today().total);
+  stepsWeek = computed(() => this.week().total);
   stepsMonth = computed(() => this.month().total);
   stepsYear = computed(() => this.year().total);
 
@@ -53,6 +55,7 @@ export class StepsService {
       tap(() => {
         // Refresh all three periods so totals stay in sync
         this.getMySteps('today').subscribe();
+        this.getMySteps('week').subscribe();
         this.getMySteps('month').subscribe();
         this.getMySteps('year').subscribe();
       }),
@@ -78,6 +81,7 @@ export class StepsService {
    */
   loadAll(): void {
     this.getMySteps('today').subscribe();
+    this.getMySteps('week').subscribe();
     this.getMySteps('month').subscribe();
     this.getMySteps('year').subscribe();
   }
@@ -102,6 +106,7 @@ export class StepsService {
   goalFor(period: StepPeriod): number {
     const goals: Record<StepPeriod, number> = {
       today: 10000,
+      week: 70000,
       month: 300000,
       year: 3650000,
     };
@@ -122,6 +127,7 @@ export class StepsService {
   clear(): void {
     const empty = { steps: [], total: 0 };
     this.today.set(empty);
+    this.week.set(empty);
     this.month.set(empty);
     this.year.set(empty);
   }

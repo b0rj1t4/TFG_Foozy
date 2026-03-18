@@ -1,26 +1,36 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tabs/activity"></ion-back-button>
+      <ion-button (click)="nav.back()">
+        <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+      </ion-button>
     </ion-buttons>
-    <ion-title>New Challenge</ion-title>
+
+    <ion-title
+      >{{ isEditMode() ? 'Edit Challenge' : 'New Challenge' }}</ion-title
+    >
+
     <ion-buttons slot="end">
       <ion-button
         strong
         color="primary"
-        [disabled]="form.invalid || !selectedImage()"
+        [disabled]="form.invalid || (!isEditMode() && !selectedImage()) || dateRangeError() || submitting()"
         (click)="submit()"
       >
-        Create
+        @if (submitting()) {
+        <ion-spinner
+          name="crescent"
+          style="width: 16px; height: 16px"
+        ></ion-spinner>
+        } @else { {{ isEditMode() ? 'Save' : 'Create' }} }
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <!-- Image picker -->
+  <!-- Image picker — shown in both modes -->
   <div class="ion-padding-horizontal ion-padding-top">
-    <!-- Preview -->
     <div
       class="image-preview"
       [style.background-image]="previewBg()"
@@ -54,7 +64,7 @@
       />
     </div>
 
-    <!-- Preset picker — shown when no upload -->
+    <!-- Preset picker — hidden when an upload is active -->
     @if (!uploadedImage()) {
     <p
       style="
@@ -85,7 +95,7 @@
     }
   </div>
 
-  <!-- Form -->
+  <!-- Form fields -->
   <form [formGroup]="form">
     <ion-list [inset]="true" class="ion-margin-top">
       <ion-item>
@@ -114,7 +124,7 @@
       </ion-item>
     </ion-list>
 
-    <!-- Step Goal -->
+    <!-- Step goal -->
     <ion-list [inset]="true">
       <ion-item lines="none">
         <ion-label>
@@ -150,10 +160,11 @@
       </ion-item>
     </ion-list>
 
-    <!-- Dates -->
+    <!-- Dates — start date is disabled in edit mode since the challenge may have started -->
     <ion-list [inset]="true">
       <ion-item>
-        <ion-label>Start date</ion-label>
+        <ion-label [color]="isEditMode() ? 'medium' : ''">Start date</ion-label>
+        @if (!isEditMode()) {
         <ion-datetime-button
           slot="end"
           datetime="startDatetime"
@@ -168,6 +179,11 @@
             ></ion-datetime>
           </ng-template>
         </ion-modal>
+        } @else {
+        <ion-note slot="end"
+          >{{ form.get('startDate')?.value | date:'MMM d, y' }}</ion-note
+        >
+        }
       </ion-item>
 
       <ion-item>
@@ -196,16 +212,22 @@
     </ion-list>
   </form>
 
-  <!-- Submit (bottom) -->
+  <!-- Submit button (bottom) -->
   <div class="ion-padding">
     <ion-button
       expand="block"
       color="primary"
-      [disabled]="form.invalid || !selectedImage() || dateRangeError()"
+      [disabled]="form.invalid || (!isEditMode() && !selectedImage()) || dateRangeError() || submitting()"
       (click)="submit()"
     >
-      <ion-icon name="flag-outline" slot="start"></ion-icon>
-      Create Challenge
+      @if (submitting()) {
+      <ion-spinner name="crescent" slot="start"></ion-spinner>
+      } @else {
+      <ion-icon
+        [name]="isEditMode() ? 'save-outline' : 'flag-outline'"
+        slot="start"
+      ></ion-icon>
+      } {{ isEditMode() ? 'Save Changes' : 'Create Challenge' }}
     </ion-button>
   </div>
 </ion-content>

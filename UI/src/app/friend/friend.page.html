@@ -5,7 +5,7 @@
         <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>{{ friend.name }}</ion-title>
+    <ion-title>{{ friend()?.name }}</ion-title>
     <ion-buttons slot="end">
       <ion-button color="danger" fill="clear" (click)="removeFriend()">
         <ion-icon slot="icon-only" name="person-remove-outline"></ion-icon>
@@ -19,20 +19,20 @@
   <div class="ion-text-center ion-padding">
     <div
       class="avatar-circle ion-margin-auto"
-      [class]="'avatar--' + friend.avatarColor"
+      [class]="'avatar--' + friend()?.avatarColor"
     >
-      {{ friend.avatarInitials }}
+      {{ friend()?.avatarInitials }}
     </div>
-    <h2 class="ion-no-margin ion-padding-top">{{ friend.name }}</h2>
+    <h2 class="ion-no-margin ion-padding-top">{{ friend()?.name }}</h2>
 
     <div class="chips-row ion-padding-top">
       <ion-chip color="primary" outline>
         <ion-icon name="footsteps-outline"></ion-icon>
-        <ion-label>{{ friend.stepsToday | number }} today</ion-label>
+        <ion-label>{{ friend()?.stepsToday | number }} today</ion-label>
       </ion-chip>
       <ion-chip color="medium" outline>
         <ion-icon name="walk-outline"></ion-icon>
-        <ion-label>{{ friend.totalSteps | number }} total</ion-label>
+        <ion-label>{{ friend()?.totalSteps | number }} total</ion-label>
       </ion-chip>
     </div>
   </div>
@@ -40,7 +40,17 @@
   <!-- Rank comparison -->
   <ion-list [inset]="true">
     <ion-list-header>
-      <ion-label>Rank vs You</ion-label>
+      <ion-label>Steps vs You</ion-label>
+      <ion-select
+        [value]="selectedPeriod()"
+        (ionChange)="onPeriodChange($event.detail.value)"
+        interface="popover"
+        style="max-width: 110px"
+      >
+        <ion-select-option value="today">Today</ion-select-option>
+        <ion-select-option value="month">Month</ion-select-option>
+        <ion-select-option value="year">Year</ion-select-option>
+      </ion-select>
     </ion-list-header>
 
     <ion-item lines="none">
@@ -51,11 +61,11 @@
             <ion-note>You</ion-note>
             <h2
               class="rank-num"
-              [class.rank-num--winning]="me.rank > friend.rank"
+              [class.rank-num--winning]="myStepsTotal() > friendStepsTotal()"
             >
-              #{{ me.rank }}
+              {{ myStepsTotal() | number }}
             </h2>
-            <p class="steps-sub">{{ me.stepsToday | number }} steps</p>
+            <p class="steps-sub">steps</p>
           </ion-col>
 
           <!-- VS divider -->
@@ -65,21 +75,20 @@
 
           <!-- Friend -->
           <ion-col class="ion-text-center">
-            <ion-note>{{ friend.name.split(' ')[0] }}</ion-note>
+            <ion-note>{{ friend()?.name?.split(' ')[0] }}</ion-note>
             <h2
               class="rank-num"
-              [class.rank-num--winning]="friend.rank < me.rank"
+              [class.rank-num--winning]="friendStepsTotal() > myStepsTotal()"
             >
-              #{{ friend.rank }}
+              {{ friendStepsTotal() | number }}
             </h2>
-            <p class="steps-sub">{{ friend.stepsToday | number }} steps</p>
+            <p class="steps-sub">steps</p>
           </ion-col>
         </ion-row>
 
-        <!-- Steps today bar comparison -->
+        <!-- Steps bar comparison -->
         <ion-row class="ion-padding-top ion-padding-bottom">
           <ion-col>
-            <ion-note>Steps today</ion-note>
             <div class="bar-row ion-margin-top">
               <div class="bar-label">You</div>
               <div class="bar-track">
@@ -88,17 +97,17 @@
                   [style.width]="myStepsPct() + '%'"
                 ></div>
               </div>
-              <div class="bar-value">{{ me.stepsToday | number }}</div>
+              <div class="bar-value">{{ myStepsTotal() | number }}</div>
             </div>
             <div class="bar-row ion-margin-top">
-              <div class="bar-label">{{ friend.name.split(' ')[0] }}</div>
+              <div class="bar-label">{{ friend()?.name?.split(' ')[0] }}</div>
               <div class="bar-track">
                 <div
                   class="bar-fill bar-fill--friend"
                   [style.width]="friendStepsPct() + '%'"
                 ></div>
               </div>
-              <div class="bar-value">{{ friend.stepsToday | number }}</div>
+              <div class="bar-value">{{ friendStepsTotal() | number }}</div>
             </div>
           </ion-col>
         </ion-row>
@@ -110,10 +119,10 @@
   <ion-list [inset]="true">
     <ion-list-header>
       <ion-label>Shared Challenges</ion-label>
-      <ion-badge color="primary">{{ sharedChallenges.length }}</ion-badge>
+      <ion-badge color="primary">{{ sharedChallenges().length }}</ion-badge>
     </ion-list-header>
 
-    @for (c of sharedChallenges; track c.id) {
+    @for (c of sharedChallenges(); track c.id) {
     <ion-item lines="full">
       <ion-icon
         slot="start"
@@ -160,7 +169,7 @@
       <ion-badge color="success">{{ unlockedCount() }}</ion-badge>
     </ion-list-header>
 
-    @for (a of achievements; track a.id) {
+    @for (a of achievements(); track a._id) {
     <ion-item lines="full" [style.opacity]="a.status === 'locked' ? 0.4 : 1">
       <ion-icon
         slot="start"

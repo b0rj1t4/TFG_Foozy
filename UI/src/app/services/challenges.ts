@@ -24,6 +24,7 @@ export interface RankingEntry {
     name: string;
     avatarInitials: string;
     avatarColor: string;
+    avatarUrl?: string | null;
   };
   steps: number;
   pct: number;
@@ -213,6 +214,16 @@ export class ChallengeService {
         // Mark as joined in the cached list
         this.challenges.update((list) =>
           list.map((c) => (c._id === id ? { ...c, joined: true } : c)),
+        );
+      }),
+    );
+  }
+
+  leaveChallenge(id: string): Observable<{ message: string }> {
+    return this.api.delete<{ message: string }>(`/challenges/${id}/leave`).pipe(
+      tap(() => {
+        this.challenges.update((list) =>
+          list.map((c) => (c._id === id ? { ...c, joined: false } : c)),
         );
       }),
     );

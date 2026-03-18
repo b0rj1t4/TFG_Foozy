@@ -3,3 +3,45 @@ ion-thumbnail {
   --border-radius: 10px;
   margin-inline-end: 12px;
 }
+
+.thumb-placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--ion-color-light);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Loading skeleton */
+.skeleton-line {
+  background: var(--ion-color-light-shade);
+  border-radius: 4px;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+.skeleton-line--title {
+  height: 14px;
+  width: 60%;
+  margin-bottom: 6px;
+}
+.skeleton-line--desc {
+  height: 11px;
+  width: 85%;
+}
+.skeleton-line--bar {
+  height: 4px;
+  width: 100%;
+}
+
+@keyframes shimmer {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 1;
+  }
+}

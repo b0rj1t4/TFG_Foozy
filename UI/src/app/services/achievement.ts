@@ -18,6 +18,7 @@ export interface Achievement {
   status: AchievementStatus;
   unlockedAt: string | null;
   progress: number; // 0–1
+  progressLabel?: string;
 }
 
 // ── Service ──────────────────────────────────────────────────────────────────
@@ -69,9 +70,19 @@ export class AchievementService {
    * (unlocked / in-progress / locked) on each entry.
    */
   getAll(): Observable<{ achievements: Achievement[] }> {
-    return this.api
-      .get<{ achievements: Achievement[] }>('/achievements')
-      .pipe(tap((res) => this.achievements.set(res.achievements)));
+    return this.api.get<{ achievements: Achievement[] }>('/achievements').pipe(
+      tap((res) => {
+        this.achievements.set(
+          res.achievements.map((a) => ({
+            ...a,
+            progressLabel:
+              a.status === 'in-progress'
+                ? this.buildProgressLabel(a)
+                : undefined,
+          })),
+        );
+      }),
+    );
   }
 
   /**
@@ -110,11 +121,46 @@ export class AchievementService {
   getFriendAchievements(
     userId: string,
   ): Observable<{ achievements: Achievement[] }> {
-    return this.api.get(`/achievements/${userId}`);
+    return this.api
+      .get<{ achievements: Achievement[] }>(`/achievements/${userId}`)
+      .pipe(
+        tap((res) => {
+          res.achievements = res.achievements.map((a) => ({
+            ...a,
+            progressLabel:
+              a.status === 'in-progress'
+                ? this.buildProgressLabel(a)
+                : undefined,
+          }));
+        }),
+      );
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
+  /**
+   * Builds a human-readable progress label based on the achievement key and
+   * the raw 0–1 progress value returned by the API.
+   *
+   * The targets must match the values in the backend achievements.service.js.
+   */
+  private buildProgressLabel(a: Achievement): string {
+    const targets: Record<string, { total: number; unit: string }> = {
+      streak_14: { total: 14, unit: 'days' },
+      streak_30: { total: 30, unit: 'days' },
+      streak_100: { total: 100, unit: 'days' },
+      million_mover: { total: 1_000_000, unit: 'steps' },
+      ultramarathon: { total: 133_000, unit: 'steps' },
+      social_butterfly: { total: 3, unit: 'groups' },
+      contender_5: { total: 5, unit: 'challenges' },
+      hat_trick: { total: 3, unit: 'wins' },
+    };
 
+    const meta = targets[a.key];
+    if (!meta) return `${Math.round(a.progress * 100)}%`;
+
+    const current = Math.round(a.progress * meta.total);
+    return `${current.toLocaleString()} / ${meta.total.toLocaleString()} ${meta.unit}`;
+  }
   /**
    * Returns achievements for a specific category from the cache.
    */

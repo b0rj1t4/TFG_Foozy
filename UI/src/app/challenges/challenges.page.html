@@ -4,7 +4,11 @@
   </ion-toolbar>
 
   <ion-toolbar>
-    <ion-segment [value]="activeTab()" (ionChange)="onTabChange($event)">
+    <ion-segment
+      [value]="activeTab()"
+      (ionChange)="onTabChange($event)"
+      scrollable
+    >
       <ion-segment-button value="all">All</ion-segment-button>
       <ion-segment-button value="active">
         <ion-icon name="flag-outline"></ion-icon>
@@ -29,9 +33,14 @@
     </ion-toolbar>
   </ion-header>
 
+  <!-- Pull to refresh -->
+  <ion-refresher slot="fixed" (ionRefresh)="onRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
   <ion-searchbar
     placeholder="Search challenges..."
-    [debounce]="200"
+    [debounce]="250"
     (ionInput)="onSearch($event)"
     animated
   ></ion-searchbar>
@@ -40,20 +49,49 @@
   <ion-list [inset]="true">
     <ion-list-header>
       <ion-label>{{ tabLabel() }}</ion-label>
+      @if (loading()) {
+      <ion-spinner
+        name="crescent"
+        style="width: 18px; height: 18px"
+      ></ion-spinner>
+      } @else {
       <ion-badge [color]="activeTab() === 'active' ? 'primary' : 'medium'">
         {{ filtered().length }}
       </ion-badge>
+      }
     </ion-list-header>
 
-    @for (c of filtered(); track c.id) {
+    <!-- Loading skeleton rows -->
+    @if (loading()) { @for (_ of skeletonRows; track $index) {
+    <ion-item lines="full">
+      <ion-thumbnail slot="start">
+        <div class="thumb-placeholder"></div>
+      </ion-thumbnail>
+      <ion-label>
+        <div class="skeleton-line skeleton-line--title"></div>
+        <div class="skeleton-line skeleton-line--desc"></div>
+        <div class="skeleton-line skeleton-line--bar ion-margin-top"></div>
+      </ion-label>
+    </ion-item>
+    } }
+
+    <!-- Real data -->
+    @if (!loading()) { @for (c of filtered(); track c._id) {
     <ion-item
       [button]="true"
       lines="full"
-      (click)="goToChallenge(c)"
       [style.opacity]="c.status === 'upcoming' ? 0.6 : 1"
+      (click)="goToChallenge(c)"
     >
+      <!-- Cover thumbnail -->
       <ion-thumbnail slot="start">
+        @if (c.coverUrl) {
         <ion-img [src]="c.coverUrl" [alt]="c.title"></ion-img>
+        } @else {
+        <div class="thumb-placeholder">
+          <ion-icon name="image-outline" color="medium"></ion-icon>
+        </div>
+        }
       </ion-thumbnail>
 
       <ion-label>
@@ -65,6 +103,11 @@
           >
             {{ c.status }}
           </ion-badge>
+          @if (c.joined) {
+          <ion-badge color="tertiary" style="margin-inline-start: 4px"
+            >Joined</ion-badge
+          >
+          }
         </h2>
         <p>{{ c.description }}</p>
 
@@ -85,7 +128,7 @@
             name="people-outline"
             style="vertical-align: middle; font-size: 12px"
           ></ion-icon>
-          {{ c.participants }} @if (c.myRank > 0) { &nbsp;·&nbsp;
+          {{ c.participants.length }} @if (c.myRank) { &nbsp;·&nbsp;
           <ion-icon
             name="ribbon-outline"
             style="vertical-align: middle; font-size: 12px"
@@ -95,7 +138,7 @@
             name="time-outline"
             style="vertical-align: middle; font-size: 12px"
           ></ion-icon>
-          {{ c.daysLeft }}d left }
+          {{ daysLeft(c.endDate) }}d left }
         </p>
         } @else {
         <p>
@@ -103,7 +146,7 @@
             name="time-outline"
             style="vertical-align: middle; font-size: 12px"
           ></ion-icon>
-          Starts {{ c.startDate }}
+          Starts {{ c.startDate | date:'MMM d' }}
         </p>
         }
       </ion-label>
@@ -118,7 +161,7 @@
         <p>No challenges found</p>
       </ion-label>
     </ion-item>
-    }
+    } }
   </ion-list>
 
   <!-- Spacer so FAB doesn't cover last item -->

@@ -57,7 +57,7 @@
       <ion-chip color="success">{{ unlockedFiltered().length }}</ion-chip>
     </ion-list-header>
 
-    @for (a of unlockedFiltered(); track a.id) {
+    @for (a of unlockedFiltered(); track a._id) {
     <ion-item lines="full">
       <ion-icon slot="start" [name]="a.icon" color="success"></ion-icon>
       <ion-label>
@@ -78,7 +78,7 @@
       <ion-chip color="primary">{{ inProgressFiltered().length }}</ion-chip>
     </ion-list-header>
 
-    @for (a of inProgressFiltered(); track a.id) {
+    @for (a of inProgressFiltered(); track a._id) {
     <ion-item lines="full">
       <ion-icon slot="start" [name]="a.icon" color="primary"></ion-icon>
       <ion-label>
@@ -104,7 +104,7 @@
       <ion-chip color="medium">{{ lockedFiltered().length }}</ion-chip>
     </ion-list-header>
 
-    @for (a of lockedFiltered(); track a.id) {
+    @for (a of lockedFiltered(); track a._id) {
     <ion-item lines="full" [style.opacity]="0.45">
       <ion-icon
         slot="start"

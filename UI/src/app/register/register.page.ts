@@ -34,6 +34,7 @@ import {
   personOutline,
 } from 'ionicons/icons';
 import { AuthService } from '../services/auth';
+import { UserService } from '../services/user';
 
 // Match backend avatar color options
 const AVATAR_COLORS = [
@@ -99,6 +100,7 @@ export class RegisterPage {
     private fb: FormBuilder,
     private router: Router,
     private auth: AuthService,
+    private userService: UserService,
   ) {
     this.form = this.fb.group({
       name: ['', Validators.required],
@@ -156,9 +158,11 @@ export class RegisterPage {
       .subscribe({
         next: () => {
           // If there's an avatar file, upload it right after registration
-          if (this.avatarPreview()) {
-            // Fetch the file from the input and call userService.updateProfileWithAvatar()
-            // For now navigate straight to the app
+          const file = (
+            document.querySelector('input[type=file]') as HTMLInputElement
+          )?.files?.[0];
+          if (file) {
+            this.userService.updateProfileWithAvatar({}, file).subscribe();
           }
           this.router.navigateByUrl('/tabs/activity', { replaceUrl: true });
         },

@@ -23,14 +23,27 @@
     </ion-toolbar>
   </ion-header>
 
+  <!-- Pull to refresh -->
+  <ion-refresher slot="fixed" (ionRefresh)="onRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
   <!-- Stats -->
   <ion-grid class="ion-padding-horizontal ion-padding-top">
     <ion-row>
+      <!-- Steps -->
       <ion-col>
         <ion-card color="primary">
           <ion-card-header>
             <ion-card-subtitle>Steps</ion-card-subtitle>
-            <ion-card-title>{{ currentStats().steps | number }}</ion-card-title>
+            <ion-card-title>
+              @if (loadingSteps()) {
+              <ion-spinner
+                name="crescent"
+                style="width: 20px; height: 20px"
+              ></ion-spinner>
+              } @else { {{ stepsTotal() | number }} }
+            </ion-card-title>
           </ion-card-header>
           <ion-card-content>
             <ion-progress-bar
@@ -42,11 +55,14 @@
         </ion-card>
       </ion-col>
 
+      <!-- Best rank -->
       <ion-col>
         <ion-card color="warning">
           <ion-card-header>
-            <ion-card-subtitle>Rank</ion-card-subtitle>
-            <ion-card-title>#{{ currentStats().position }}</ion-card-title>
+            <ion-card-subtitle>Best rank</ion-card-subtitle>
+            <ion-card-title>
+              {{ bestRank() ? '#' + bestRank() : '—' }}
+            </ion-card-title>
           </ion-card-header>
           <ion-card-content>
             <p>{{ rankLabel() }}</p>
@@ -54,11 +70,12 @@
         </ion-card>
       </ion-col>
 
+      <!-- Challenges in period -->
       <ion-col>
         <ion-card color="success">
           <ion-card-header>
             <ion-card-subtitle>Challenges</ion-card-subtitle>
-            <ion-card-title>{{ currentStats().challenges }}</ion-card-title>
+            <ion-card-title>{{ filteredChallenges().length }}</ion-card-title>
           </ion-card-header>
           <ion-card-content>
             <p>{{ completedCount() }} completed</p>
@@ -75,13 +92,28 @@
       <ion-chip>{{ filteredChallenges().length }}</ion-chip>
     </ion-list-header>
 
-    @for (challenge of filteredChallenges(); track challenge.id) {
-    <ion-item [detail]="challenge.status !== 'upcoming'" lines="full">
-      <ion-icon
-        slot="start"
-        [name]="statusIcon(challenge.status)"
-        [color]="statusColor(challenge.status)"
-      ></ion-icon>
+    @if (loadingChallenges()) {
+    <ion-item lines="none">
+      <ion-spinner name="crescent" slot="start"></ion-spinner>
+      <ion-label color="medium">Loading...</ion-label>
+    </ion-item>
+    } @for (challenge of filteredChallenges(); track challenge._id) {
+    <ion-item
+      [detail]="challenge.status !== 'upcoming'"
+      [button]="challenge.status !== 'upcoming'"
+      lines="full"
+      (click)="challenge.status !== 'upcoming' && goToChallenge(challenge)"
+    >
+      <!-- Cover thumbnail -->
+      <ion-thumbnail slot="start">
+        @if (challenge.coverUrl) {
+        <ion-img [src]="challenge.coverUrl" [alt]="challenge.title"></ion-img>
+        } @else {
+        <div class="thumb-placeholder">
+          <ion-icon name="image-outline" color="medium"></ion-icon>
+        </div>
+        }
+      </ion-thumbnail>
 
       <ion-label>
         <h2>{{ challenge.title }}</h2>
@@ -90,7 +122,7 @@
         @if (challenge.status !== 'upcoming') {
         <ion-progress-bar
           class="ion-margin-top"
-          [value]="challenge.currentSteps / challenge.targetSteps"
+          [value]="(challenge.mySteps ?? 0) / challenge.targetSteps"
           [color]="challenge.status === 'completed' ? 'success' : 'primary'"
         ></ion-progress-bar>
         <p class="ion-margin-top">
@@ -98,28 +130,37 @@
             name="people-outline"
             style="vertical-align: middle"
           ></ion-icon>
-          {{ challenge.participants }} &nbsp;&nbsp;
+          {{ challenge.participants.length }} &nbsp;&nbsp; @if
+          (challenge.myRank) {
           <ion-icon
             name="ribbon-outline"
             style="vertical-align: middle"
           ></ion-icon>
-          #{{ challenge.yourRank }} &nbsp;&nbsp;
+          #{{ challenge.myRank }} &nbsp;&nbsp; }
           <ion-icon
             name="time-outline"
             style="vertical-align: middle"
           ></ion-icon>
-          {{ challenge.endDate }}
+          {{ challenge.endDate | date:'MMM d' }}
+        </p>
+        } @else {
+        <p>
+          <ion-icon
+            name="calendar-outline"
+            style="vertical-align: middle"
+          ></ion-icon>
+          Starts {{ challenge.startDate | date:'MMM d' }}
         </p>
         }
       </ion-label>
 
       @if (challenge.status !== 'upcoming') {
-      <ion-note slot="end"> {{ progressPct(challenge) }}% </ion-note>
+      <ion-note slot="end">{{ progressPct(challenge) }}%</ion-note>
       } @else {
       <ion-badge slot="end" color="medium">Soon</ion-badge>
       }
     </ion-item>
-    } @if (filteredChallenges().length === 0) {
+    } @if (!loadingChallenges() && filteredChallenges().length === 0) {
     <ion-item lines="none">
       <ion-label class="ion-text-center" color="medium">
         No challenges for this period

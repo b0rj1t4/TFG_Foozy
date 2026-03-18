@@ -50,6 +50,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'edit/:id',
+        loadComponent: () =>
+          import('./create-challenge/create-challenge.page').then(
+            (m) => m.CreateChallengePage,
+          ),
+      },
+      {
         path: ':id',
         loadComponent: () =>
           import('./challenge/challenge.page').then((m) => m.ChallengePage),

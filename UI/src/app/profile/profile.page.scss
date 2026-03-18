@@ -1,8 +1,14 @@
-/* Avatar large */
 .avatar-wrap {
   position: relative;
   display: inline-block;
   cursor: pointer;
+}
+
+.avatar-img {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .avatar-circle {
@@ -16,7 +22,6 @@
   font-weight: 600;
 }
 
-/* Avatar small (ion-avatar) */
 .avatar-sm {
   width: 100%;
   height: 100%;
@@ -28,7 +33,6 @@
   font-weight: 600;
 }
 
-/* Color variants — uses Ionic color tokens */
 .avatar-circle--primary {
   background: var(--ion-color-primary-tint);
   color: var(--ion-color-primary-shade);
@@ -69,7 +73,6 @@
   flex-wrap: wrap;
 }
 
-/* Native input inside ion-item */
 .native-input {
   width: 100%;
   background: transparent;
@@ -78,4 +81,8 @@
   font-size: 16px;
   color: var(--ion-text-color);
   padding: 8px 0;
+}
+
+.native-input:disabled {
+  opacity: 0.4;
 }

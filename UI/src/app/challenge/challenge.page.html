@@ -1,43 +1,131 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="toolbar-transparent">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tabs/activity"></ion-back-button>
+      <ion-button (click)="nav.back()" color="light">
+        <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+      </ion-button>
     </ion-buttons>
+    <!-- Owner actions -->
+    @if (isOwner()) {
+    <ion-buttons slot="end">
+      <ion-button color="light" (click)="editChallenge()">
+        <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+      </ion-button>
+      <ion-button color="light" (click)="deleteChallenge()">
+        <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    }
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" [scrollEvents]="true">
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="onRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Loading -->
+  @if (loading()) {
+  <div class="ion-text-center ion-padding" style="padding-top: 80px">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+  } @if (!loading() && challenge()) {
+
   <!-- Cover -->
+  @if (challenge()!.coverUrl) {
   <div
     class="cover"
-    [style.background-image]="'url(' + challenge.coverUrl + ')'"
+    [style.background-image]="'url(' + challenge()!.coverUrl + ')'"
   >
     <div class="cover-scrim">
-      <h1 class="cover-title">{{ challenge.title }}</h1>
-      <p class="cover-desc">{{ challenge.description }}</p>
+      <h1 class="cover-title">{{ challenge()!.title }}</h1>
+      <p class="cover-desc">{{ challenge()!.description }}</p>
     </div>
   </div>
+  } @else {
+  <div class="cover cover--placeholder">
+    <div class="cover-scrim">
+      <h1 class="cover-title">{{ challenge()!.title }}</h1>
+      <p class="cover-desc">{{ challenge()!.description }}</p>
+    </div>
+  </div>
+  }
 
   <!-- Meta chips -->
   <div class="chips-row ion-padding-horizontal ion-padding-top">
     <ion-chip outline color="medium">
       <ion-icon name="calendar-outline"></ion-icon>
-      <ion-label
-        >{{ formatDate(challenge.startDate) }} – {{
-        formatDate(challenge.endDate) }}</ion-label
-      >
+      <ion-label>
+        {{ formatDate(challenge()!.startDate) }} – {{
+        formatDate(challenge()!.endDate) }}
+      </ion-label>
     </ion-chip>
     <ion-chip outline color="medium">
       <ion-icon name="people-outline"></ion-icon>
-      <ion-label>{{ challenge.participants.length }} participants</ion-label>
+      <ion-label>{{ challenge()!.participants.length }} participants</ion-label>
     </ion-chip>
-    <ion-chip outline [color]="daysLeft() <= 5 ? 'danger' : 'medium'">
+    <ion-chip
+      outline
+      [color]="daysLeft() <= 5 && challenge()!.status !== 'completed' ? 'danger' : 'medium'"
+    >
       <ion-icon name="time-outline"></ion-icon>
-      <ion-label>{{ daysLeft() }}d left</ion-label>
+      <ion-label>
+        {{ challenge()!.status === 'completed' ? 'Ended' : challenge()!.status
+        === 'upcoming' ? 'Starting soon' : daysLeft() + 'd left' }}
+      </ion-label>
     </ion-chip>
   </div>
 
-  <!-- My progress -->
+  <!-- Created by -->
+  <ion-list [inset]="true">
+    <ion-item lines="none">
+      <ion-icon name="person-outline" slot="start" color="medium"></ion-icon>
+      <ion-label>
+        <h3>Created by</h3>
+        <p>{{ challenge()!.createdBy.name }}</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+  <!-- Join button — only if not the creator, not already joined, and challenge is still active -->
+  @if (!isOwner() && !isJoined() && challenge()!.status === 'active') {
+  <div class="ion-padding-horizontal ion-padding-bottom">
+    <ion-button
+      expand="block"
+      color="primary"
+      [disabled]="joining()"
+      (click)="joinChallenge()"
+    >
+      @if (joining()) {
+      <ion-spinner name="crescent" slot="start"></ion-spinner>
+      } @else {
+      <ion-icon name="add-outline" slot="start"></ion-icon>
+      } Join Challenge
+    </ion-button>
+  </div>
+  }
+
+  <!-- Leave button — only if joined, not the owner, and challenge is still active -->
+  @if (!isOwner() && isJoined() && challenge()!.status === 'active') {
+  <div class="ion-padding-horizontal ion-padding-bottom">
+    <ion-button
+      expand="block"
+      fill="outline"
+      color="danger"
+      [disabled]="leaving()"
+      (click)="leaveChallenge()"
+    >
+      @if (leaving()) {
+      <ion-spinner name="crescent" slot="start"></ion-spinner>
+      } @else {
+      <ion-icon name="exit-outline" slot="start"></ion-icon>
+      } Leave Challenge
+    </ion-button>
+  </div>
+  }
+
+  <!-- My progress — only if joined -->
+  @if (isJoined()) {
   <ion-list [inset]="true">
     <ion-item lines="none">
       <ion-icon
@@ -48,8 +136,8 @@
       <ion-label>
         <h3>Your progress</h3>
         <p>
-          {{ myEntry().steps | number }} / {{ challenge.targetSteps | number }}
-          steps
+          {{ myEntry()?.steps | number }} / {{ challenge()!.targetSteps | number
+          }} steps
         </p>
         <ion-progress-bar
           class="ion-margin-top"
@@ -63,104 +151,156 @@
     </ion-item>
     <ion-item lines="none">
       <ion-icon name="trophy-outline" slot="start" color="warning"></ion-icon>
-      <ion-label>
-        <h3>Your rank</h3>
-      </ion-label>
-      <ion-note slot="end"
-        >#{{ myRank() }} of {{ challenge.participants.length }}</ion-note
-      >
+      <ion-label><h3>Your rank</h3></ion-label>
+      <ion-note slot="end">
+        #{{ myEntry()?.rank ?? '—' }} of {{ challenge()!.participants.length }}
+      </ion-note>
     </ion-item>
   </ion-list>
+  }
 
-  <!-- Podium -->
+  <!-- Leaderboard -->
   <ion-list [inset]="true">
     <ion-list-header>
       <ion-label>Leaderboard</ion-label>
-      <ion-badge color="primary">{{ challenge.participants.length }}</ion-badge>
+      @if (loadingRanking()) {
+      <ion-spinner
+        name="crescent"
+        style="width: 18px; height: 18px"
+      ></ion-spinner>
+      } @else {
+      <ion-badge color="primary">{{ ranking().length }}</ion-badge>
+      }
     </ion-list-header>
 
-    <!-- Top 3 podium -->
+    <!-- Podium — only when 3+ participants -->
+    @if (!loadingRanking() && ranking().length >= 3) {
     <ion-item lines="none">
       <div class="podium-row">
         <!-- 2nd -->
-        <div
-          class="podium-slot podium-slot--2"
-          (click)="goToProfile(ranked()[1])"
-        >
-          <div
-            class="podium-avatar"
-            [class]="'avatar--' + ranked()[1].avatarColor"
+        <div class="podium-slot" (click)="goToProfile(ranking()[1])">
+          <ion-avatar class="podium-avatar">
+            @if (ranking()[1].user.avatarUrl) {
+            <img
+              [src]="ranking()[1].user.avatarUrl"
+              [alt]="ranking()[1].user.name"
+            />
+            } @else {
+            <div
+              class="avatar-initials"
+              [class]="'avatar--' + ranking()[1].user.avatarColor"
+            >
+              {{ ranking()[1].user.avatarInitials }}
+            </div>
+            }
+          </ion-avatar>
+          <span class="podium-medal">🥈</span>
+          <span class="podium-name"
+            >{{ firstName(ranking()[1].user.name) }}</span
           >
-            {{ ranked()[1].avatarInitials }}
-          </div>
-          <span class="podium-medal">{{ medal(2) }}</span>
-          <span class="podium-name">{{ firstName(ranked()[1].name) }}</span>
-          <span class="podium-steps">{{ ranked()[1].steps | number }}</span>
+          <span class="podium-steps">{{ ranking()[1].steps | number }}</span>
           <div class="podium-block podium-block--2"></div>
         </div>
 
         <!-- 1st -->
-        <div
-          class="podium-slot podium-slot--1"
-          (click)="goToProfile(ranked()[0])"
-        >
-          <div
-            class="podium-avatar podium-avatar--lg"
-            [class]="'avatar--' + ranked()[0].avatarColor"
+        <div class="podium-slot" (click)="goToProfile(ranking()[0])">
+          <ion-avatar class="podium-avatar podium-avatar--lg">
+            @if (ranking()[0].user.avatarUrl) {
+            <img
+              [src]="ranking()[0].user.avatarUrl"
+              [alt]="ranking()[0].user.name"
+            />
+            } @else {
+            <div
+              class="avatar-initials"
+              [class]="'avatar--' + ranking()[0].user.avatarColor"
+            >
+              {{ ranking()[0].user.avatarInitials }}
+            </div>
+            }
+          </ion-avatar>
+          <span class="podium-medal">🥇</span>
+          <span class="podium-name"
+            >{{ firstName(ranking()[0].user.name) }}</span
           >
-            {{ ranked()[0].avatarInitials }}
-          </div>
-          <span class="podium-medal">{{ medal(1) }}</span>
-          <span class="podium-name">{{ firstName(ranked()[0].name) }}</span>
-          <span class="podium-steps">{{ ranked()[0].steps | number }}</span>
+          <span class="podium-steps">{{ ranking()[0].steps | number }}</span>
           <div class="podium-block podium-block--1"></div>
         </div>
 
         <!-- 3rd -->
-        <div
-          class="podium-slot podium-slot--3"
-          (click)="goToProfile(ranked()[2])"
-        >
-          <div
-            class="podium-avatar"
-            [class]="'avatar--' + ranked()[2].avatarColor"
+        <div class="podium-slot" (click)="goToProfile(ranking()[2])">
+          <ion-avatar class="podium-avatar">
+            @if (ranking()[2].user.avatarUrl) {
+            <img
+              [src]="ranking()[2].user.avatarUrl"
+              [alt]="ranking()[2].user.name"
+            />
+            } @else {
+            <div
+              class="avatar-initials"
+              [class]="'avatar--' + ranking()[2].user.avatarColor"
+            >
+              {{ ranking()[2].user.avatarInitials }}
+            </div>
+            }
+          </ion-avatar>
+          <span class="podium-medal">🥉</span>
+          <span class="podium-name"
+            >{{ firstName(ranking()[2].user.name) }}</span
           >
-            {{ ranked()[2].avatarInitials }}
-          </div>
-          <span class="podium-medal">{{ medal(3) }}</span>
-          <span class="podium-name">{{ firstName(ranked()[2].name) }}</span>
-          <span class="podium-steps">{{ ranked()[2].steps | number }}</span>
+          <span class="podium-steps">{{ ranking()[2].steps | number }}</span>
           <div class="podium-block podium-block--3"></div>
         </div>
       </div>
     </ion-item>
+    }
 
-    <!-- Rest of the list -->
-    @for (entry of ranked().slice(3); track entry.id; let i = $index) {
+    <!-- Full list — slice(3) when podium shown, slice(0) otherwise -->
+    @for (entry of listEntries(); track entry.user._id; let i = $index) {
     <ion-item
-      [lines]="i < ranked().length - 4 ? 'full' : 'none'"
+      [lines]="i < listEntries().length - 1 ? 'full' : 'none'"
       [class.item-me]="entry.isMe"
       [button]="!entry.isMe"
       (click)="!entry.isMe && goToProfile(entry)"
     >
-      <ion-note slot="start" class="rank-num">{{ i + 4 }}</ion-note>
-      <div
+      <ion-note slot="start" class="rank-num">{{ entry.rank }}</ion-note>
+
+      <ion-avatar
         slot="start"
-        class="avatar-sm"
-        [class]="'avatar--' + entry.avatarColor"
+        style="width: 36px; height: 36px; margin-inline-end: 10px"
       >
-        {{ entry.avatarInitials }}
-      </div>
+        @if (entry.user.avatarUrl) {
+        <img [src]="entry.user.avatarUrl" [alt]="entry.user.name" />
+        } @else {
+        <div
+          class="avatar-initials avatar-sm"
+          [class]="'avatar--' + entry.user.avatarColor"
+        >
+          {{ entry.user.avatarInitials }}
+        </div>
+        }
+      </ion-avatar>
+
       <ion-label>
         <h2>
-          {{ entry.name }} @if (entry.isMe) {
-          <ion-badge color="primary">You</ion-badge> } @if (entry.isFriend &&
-          !entry.isMe) { <ion-badge color="success">Friend</ion-badge> }
+          {{ entry.user.name }} @if (entry.isMe) {
+          <ion-badge color="primary">You</ion-badge>
+          } @if (!entry.isMe && isFriend(entry.user._id)) {
+          <ion-badge color="success">Friend</ion-badge>
+          }
         </h2>
         <p>{{ entry.steps | number }} steps</p>
       </ion-label>
-      <ion-note slot="end">{{ pct(entry.steps) }}%</ion-note>
+      <ion-note slot="end">{{ entry.pct }}%</ion-note>
+    </ion-item>
+    } @if (!loadingRanking() && ranking().length === 0) {
+    <ion-item lines="none">
+      <ion-label class="ion-text-center" color="medium"
+        >No participants yet</ion-label
+      >
     </ion-item>
     }
   </ion-list>
+
+  }
 </ion-content>

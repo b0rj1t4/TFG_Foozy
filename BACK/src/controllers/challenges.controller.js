@@ -14,15 +14,18 @@ const getChallenges = async (req, res, next) => {
       .sort({ createdAt: -1 });
 
     // Attach caller's own steps to each challenge
-    const result = challenges.map(c => {
-      const me = c.participants.find(p => p.user.toString() === req.user._id.toString());
+    const result = challenges.map((c) => {
+      const me = c.participants.find(
+        (p) => p.user.toString() === req.user._id.toString(),
+      );
       return {
         ...c.toJSON(),
         mySteps: me?.steps ?? null,
         myRank: me
           ? [...c.participants]
               .sort((a, b) => b.steps - a.steps)
-              .findIndex(p => p.user.toString() === req.user._id.toString()) + 1
+              .findIndex((p) => p.user.toString() === req.user._id.toString()) +
+            1
           : null,
         joined: !!me,
       };
@@ -44,7 +47,9 @@ const createChallenge = async (req, res, next) => {
     const { title, description, targetSteps, startDate, endDate } = req.body;
 
     if (new Date(endDate) <= new Date(startDate)) {
-      return res.status(400).json({ message: 'End date must be after start date' });
+      return res
+        .status(400)
+        .json({ message: 'End date must be after start date' });
     }
 
     const challenge = await Challenge.create({
@@ -53,7 +58,9 @@ const createChallenge = async (req, res, next) => {
       targetSteps,
       startDate,
       endDate,
-      coverUrl: req.file ? `/uploads/${req.file.filename}` : req.body.coverUrl ?? null,
+      coverUrl: req.file
+        ? `/uploads/${req.file.filename}`
+        : (req.body.coverUrl ?? null),
       createdBy: req.user._id,
       participants: [{ user: req.user._id, steps: 0 }],
     });
@@ -64,15 +71,64 @@ const createChallenge = async (req, res, next) => {
   }
 };
 
+const leaveChallenge = async (req, res, next) => {
+  try {
+    const challenge = await Challenge.findById(req.params.id);
+    if (!challenge)
+      return res.status(404).json({ message: 'Challenge not found' });
+
+    if (challenge.createdBy.toString() === req.user._id.toString()) {
+      return res
+        .status(403)
+        .json({ message: 'Creator cannot leave their own challenge' });
+    }
+
+    const idx = challenge.participants.findIndex(
+      (p) => p.user.toString() === req.user._id.toString(),
+    );
+    if (idx === -1)
+      return res.status(400).json({ message: 'Not a participant' });
+
+    challenge.participants.splice(idx, 1);
+    await challenge.save();
+
+    res.json({ message: 'Left challenge', joined: false });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const getChallengeById = async (req, res, next) => {
   try {
     const challenge = await Challenge.findById(req.params.id)
-      .populate('createdBy', 'name avatarInitials avatarColor')
-      .populate('participants.user', 'name avatarInitials avatarColor stepsToday');
+      .populate('createdBy', 'name avatarInitials avatarColor avatarUrl')
+      .populate(
+        'participants.user',
+        'name avatarInitials avatarColor avatarUrl stepsToday',
+      );
 
-    if (!challenge) return res.status(404).json({ message: 'Challenge not found' });
+    if (!challenge)
+      return res.status(404).json({ message: 'Challenge not found' });
 
-    res.json({ challenge });
+    const me = challenge.participants.find(
+      (p) => p.user._id.toString() === req.user._id.toString(),
+    );
+
+    const myRank = me
+      ? [...challenge.participants]
+          .sort((a, b) => b.steps - a.steps)
+          .findIndex((p) => p.user._id.toString() === req.user._id.toString()) +
+        1
+      : null;
+
+    res.json({
+      challenge: {
+        ...challenge.toJSON(),
+        joined: !!me,
+        mySteps: me?.steps ?? null,
+        myRank,
+      },
+    });
   } catch (err) {
     next(err);
   }
@@ -81,14 +137,21 @@ const getChallengeById = async (req, res, next) => {
 const updateChallenge = async (req, res, next) => {
   try {
     const challenge = await Challenge.findById(req.params.id);
-    if (!challenge) return res.status(404).json({ message: 'Challenge not found' });
+    if (!challenge)
+      return res.status(404).json({ message: 'Challenge not found' });
 
     if (challenge.createdBy.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Not the challenge owner' });
     }
 
-    const allowed = ['title', 'description', 'targetSteps', 'startDate', 'endDate'];
-    allowed.forEach(field => {
+    const allowed = [
+      'title',
+      'description',
+      'targetSteps',
+      'startDate',
+      'endDate',
+    ];
+    allowed.forEach((field) => {
       if (req.body[field] !== undefined) challenge[field] = req.body[field];
     });
 
@@ -102,7 +165,8 @@ const updateChallenge = async (req, res, next) => {
 const deleteChallenge = async (req, res, next) => {
   try {
     const challenge = await Challenge.findById(req.params.id);
-    if (!challenge) return res.status(404).json({ message: 'Challenge not found' });
+    if (!challenge)
+      return res.status(404).json({ message: 'Challenge not found' });
 
     if (challenge.createdBy.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Not the challenge owner' });
@@ -118,14 +182,15 @@ const deleteChallenge = async (req, res, next) => {
 const joinChallenge = async (req, res, next) => {
   try {
     const challenge = await Challenge.findById(req.params.id);
-    if (!challenge) return res.status(404).json({ message: 'Challenge not found' });
+    if (!challenge)
+      return res.status(404).json({ message: 'Challenge not found' });
 
     if (challenge.status === 'completed') {
       return res.status(400).json({ message: 'Challenge already completed' });
     }
 
     const already = challenge.participants.find(
-      p => p.user.toString() === req.user._id.toString()
+      (p) => p.user.toString() === req.user._id.toString(),
     );
     if (already) return res.status(409).json({ message: 'Already joined' });
 
@@ -142,10 +207,11 @@ const getRanking = async (req, res, next) => {
   try {
     const challenge = await Challenge.findById(req.params.id).populate(
       'participants.user',
-      'name avatarInitials avatarColor'
+      'name avatarInitials avatarColor',
     );
 
-    if (!challenge) return res.status(404).json({ message: 'Challenge not found' });
+    if (!challenge)
+      return res.status(404).json({ message: 'Challenge not found' });
 
     const ranking = [...challenge.participants]
       .sort((a, b) => b.steps - a.steps)
@@ -170,5 +236,6 @@ module.exports = {
   updateChallenge,
   deleteChallenge,
   joinChallenge,
+  leaveChallenge,
   getRanking,
 };

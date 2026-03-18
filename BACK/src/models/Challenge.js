@@ -6,7 +6,7 @@ const participantSchema = new mongoose.Schema(
     steps: { type: Number, default: 0 },
     joinedAt: { type: Date, default: Date.now },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const challengeSchema = new mongoose.Schema(
@@ -17,7 +17,11 @@ const challengeSchema = new mongoose.Schema(
     targetSteps: { type: Number, required: true, min: 1 },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
     participants: [participantSchema],
     status: {
       type: String,
@@ -25,7 +29,7 @@ const challengeSchema = new mongoose.Schema(
       default: 'upcoming',
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Auto-set status based on dates
@@ -34,7 +38,6 @@ challengeSchema.pre('save', function (next) {
   if (now < this.startDate) this.status = 'upcoming';
   else if (now > this.endDate) this.status = 'completed';
   else this.status = 'active';
-  next();
 });
 
 challengeSchema.virtual('participantCount').get(function () {
