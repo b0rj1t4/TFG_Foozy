@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
-    "seed": "node src/utils/seedAchievements.js",
+    "seed": "node src/seeds/achievements.js",
     "lint": "eslint src/**/*.js"
   },
   "keywords": [],
