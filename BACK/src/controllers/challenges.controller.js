@@ -207,7 +207,7 @@ const getRanking = async (req, res, next) => {
   try {
     const challenge = await Challenge.findById(req.params.id).populate(
       'participants.user',
-      'name avatarInitials avatarColor',
+      'name avatarInitials avatarColor avatarUrl',
     );
 
     if (!challenge)

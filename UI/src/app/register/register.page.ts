@@ -23,28 +23,13 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
-import { addIcons } from 'ionicons';
-import {
-  cameraOutline,
-  closeCircle,
-  eyeOffOutline,
-  eyeOutline,
-  lockClosedOutline,
-  mailOutline,
-  personOutline,
-} from 'ionicons/icons';
 import { AuthService } from '../services/auth';
 import { UserService } from '../services/user';
-
-// Match backend avatar color options
-const AVATAR_COLORS = [
-  'primary',
-  'success',
-  'tertiary',
-  'warning',
-  'danger',
-] as const;
-type AvatarColor = (typeof AVATAR_COLORS)[number];
+import {
+  AVATAR_COLORS,
+  AvatarColor,
+  AvatarComponent,
+} from '../shared/avatar/avatar.component';
 
 function confirmPasswordValidator(control: AbstractControl) {
   const password = control.parent?.get('password')?.value;
@@ -70,6 +55,7 @@ function confirmPasswordValidator(control: AbstractControl) {
     IonNote,
     IonIcon,
     IonSpinner,
+    AvatarComponent,
   ],
   templateUrl: './register.page.html',
   styleUrl: './register.page.scss',
@@ -81,8 +67,11 @@ export class RegisterPage {
   loading = signal(false);
   showPassword = signal(false);
   showConfirm = signal(false);
+  avatarFile = signal<File | null>(null);
+
   avatarPreview = signal<string | null>(null);
   selectedColor = signal<AvatarColor>('primary');
+  serverError = signal<string | null>(null);
 
   // Live initials from the name field
   initials = computed(() => {
@@ -135,6 +124,7 @@ export class RegisterPage {
   }
 
   clearAvatar() {
+    this.avatarFile.set(null);
     this.avatarPreview.set(null);
   }
 
@@ -145,6 +135,7 @@ export class RegisterPage {
     }
 
     this.loading.set(true);
+    this.serverError.set(null);
 
     const { name, email, password } = this.form.value;
 
@@ -167,11 +158,18 @@ export class RegisterPage {
           this.router.navigateByUrl('/tabs/activity', { replaceUrl: true });
         },
         error: (err) => {
-          console.error('Register error', err);
+          this.serverError.set(
+            err?.error?.message ?? 'Something went wrong. Please try again.',
+          );
+
           this.loading.set(false);
         },
         complete: () => this.loading.set(false),
       });
+  }
+
+  onAvatarFile(file: File) {
+    this.avatarFile.set(file);
   }
 
   goToLogin() {

@@ -179,21 +179,13 @@
       <div class="podium-row">
         <!-- 2nd -->
         <div class="podium-slot" (click)="goToProfile(ranking()[1])">
-          <ion-avatar class="podium-avatar">
-            @if (ranking()[1].user.avatarUrl) {
-            <img
-              [src]="ranking()[1].user.avatarUrl"
-              [alt]="ranking()[1].user.name"
-            />
-            } @else {
-            <div
-              class="avatar-initials"
-              [class]="'avatar--' + ranking()[1].user.avatarColor"
-            >
-              {{ ranking()[1].user.avatarInitials }}
-            </div>
-            }
-          </ion-avatar>
+          <app-avatar
+            [avatarUrl]="ranking()[1].user.avatarUrl ?? null"
+            [initials]="ranking()[1].user.avatarInitials ?? '?'"
+            [avatarColor]="ranking()[1].user.avatarColor ?? 'primary'"
+            size="md"
+          ></app-avatar>
+
           <span class="podium-medal">🥈</span>
           <span class="podium-name"
             >{{ firstName(ranking()[1].user.name) }}</span
@@ -204,21 +196,13 @@
 
         <!-- 1st -->
         <div class="podium-slot" (click)="goToProfile(ranking()[0])">
-          <ion-avatar class="podium-avatar podium-avatar--lg">
-            @if (ranking()[0].user.avatarUrl) {
-            <img
-              [src]="ranking()[0].user.avatarUrl"
-              [alt]="ranking()[0].user.name"
-            />
-            } @else {
-            <div
-              class="avatar-initials"
-              [class]="'avatar--' + ranking()[0].user.avatarColor"
-            >
-              {{ ranking()[0].user.avatarInitials }}
-            </div>
-            }
-          </ion-avatar>
+          <app-avatar
+            [avatarUrl]="ranking()[0].user.avatarUrl ?? null"
+            [initials]="ranking()[0].user.avatarInitials ?? '?'"
+            [avatarColor]="ranking()[0].user.avatarColor ?? 'primary'"
+            size="lg"
+          ></app-avatar>
+
           <span class="podium-medal">🥇</span>
           <span class="podium-name"
             >{{ firstName(ranking()[0].user.name) }}</span
@@ -229,21 +213,12 @@
 
         <!-- 3rd -->
         <div class="podium-slot" (click)="goToProfile(ranking()[2])">
-          <ion-avatar class="podium-avatar">
-            @if (ranking()[2].user.avatarUrl) {
-            <img
-              [src]="ranking()[2].user.avatarUrl"
-              [alt]="ranking()[2].user.name"
-            />
-            } @else {
-            <div
-              class="avatar-initials"
-              [class]="'avatar--' + ranking()[2].user.avatarColor"
-            >
-              {{ ranking()[2].user.avatarInitials }}
-            </div>
-            }
-          </ion-avatar>
+          <app-avatar
+            [avatarUrl]="ranking()[2].user.avatarUrl ?? null"
+            [initials]="ranking()[2].user.avatarInitials ?? '?'"
+            [avatarColor]="ranking()[2].user.avatarColor ?? 'primary'"
+            size="md"
+          ></app-avatar>
           <span class="podium-medal">🥉</span>
           <span class="podium-name"
             >{{ firstName(ranking()[2].user.name) }}</span
@@ -265,21 +240,13 @@
     >
       <ion-note slot="start" class="rank-num">{{ entry.rank }}</ion-note>
 
-      <ion-avatar
+      <app-avatar
         slot="start"
-        style="width: 36px; height: 36px; margin-inline-end: 10px"
-      >
-        @if (entry.user.avatarUrl) {
-        <img [src]="entry.user.avatarUrl" [alt]="entry.user.name" />
-        } @else {
-        <div
-          class="avatar-initials avatar-sm"
-          [class]="'avatar--' + entry.user.avatarColor"
-        >
-          {{ entry.user.avatarInitials }}
-        </div>
-        }
-      </ion-avatar>
+        [avatarUrl]="entry.user.avatarUrl ?? null"
+        [initials]="entry.user.avatarInitials ?? '?'"
+        [avatarColor]="entry.user.avatarColor ?? 'primary'"
+        size="md"
+      ></app-avatar>
 
       <ion-label>
         <h2>

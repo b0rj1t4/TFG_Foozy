@@ -13,7 +13,7 @@ const updateMe = async (req, res, next) => {
     }
 
     const allowed = ['name', 'avatarColor'];
-    allowed.forEach(field => {
+    allowed.forEach((field) => {
       if (req.body[field] !== undefined) req.user[field] = req.body[field];
     });
 
@@ -29,11 +29,51 @@ const updateMe = async (req, res, next) => {
   }
 };
 
+const getSuggestions = async (req, res, next) => {
+  try {
+    const friendIds = req.user.friends.map((id) => id.toString());
+
+    // Exclude self and existing friends, return up to 10 random users
+    const users = await User.aggregate([
+      {
+        $match: {
+          _id: {
+            $nin: [req.user._id, ...req.user.friends],
+          },
+        },
+      },
+      { $sample: { size: 10 } },
+      {
+        $project: {
+          name: 1,
+          email: 1,
+          avatarInitials: 1,
+          avatarColor: 1,
+          avatarUrl: 1,
+          stepsToday: 1,
+        },
+      },
+    ]);
+
+    const result = users.map((u) => ({
+      ...u,
+      _id: u._id.toString(),
+      isFriend: false, // all are non-friends by definition of the query
+    }));
+
+    res.json({ users: result });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const searchUsers = async (req, res, next) => {
   try {
     const { q } = req.query;
     if (!q || q.trim().length < 2) {
-      return res.status(400).json({ message: 'Query must be at least 2 characters' });
+      return res
+        .status(400)
+        .json({ message: 'Query must be at least 2 characters' });
     }
 
     const users = await User.find({
@@ -47,8 +87,8 @@ const searchUsers = async (req, res, next) => {
       .limit(20);
 
     // Mark which ones are already friends
-    const friendIds = req.user.friends.map(id => id.toString());
-    const result = users.map(u => ({
+    const friendIds = req.user.friends.map((id) => id.toString());
+    const result = users.map((u) => ({
       ...u.toJSON(),
       isFriend: friendIds.includes(u._id.toString()),
     }));
@@ -62,16 +102,20 @@ const searchUsers = async (req, res, next) => {
 const getUserById = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id)
-      .select('name email avatarInitials avatarColor avatarUrl stepsToday totalSteps')
+      .select(
+        'name email avatarInitials avatarColor avatarUrl stepsToday totalSteps',
+      )
       .populate('friends', 'name avatarInitials avatarColor stepsToday');
 
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    const isFriend = req.user.friends.map(id => id.toString()).includes(user._id.toString());
+    const isFriend = req.user.friends
+      .map((id) => id.toString())
+      .includes(user._id.toString());
     res.json({ user: { ...user.toJSON(), isFriend } });
   } catch (err) {
     next(err);
   }
 };
 
-module.exports = { getMe, updateMe, searchUsers, getUserById };
+module.exports = { getMe, updateMe, searchUsers, getUserById, getSuggestions };

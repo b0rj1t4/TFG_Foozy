@@ -9,30 +9,20 @@
 
 <ion-content [fullscreen]="true">
   <div class="ion-padding-horizontal ion-padding-top">
-    <!-- Avatar picker -->
+    <!-- Avatar section -->
     <div class="avatar-section">
-      <div class="avatar-wrap" (click)="triggerUpload()">
-        @if (avatarPreview()) {
-        <img [src]="avatarPreview()" class="avatar-img" alt="Avatar" />
-        } @else {
-        <div class="avatar-initials" [class]="'avatar--' + selectedColor()">
-          {{ initials() || '?' }}
-        </div>
-        }
+      <!-- AvatarComponent handles photo upload, preview and initials fallback -->
+      <app-avatar
+        [avatarUrl]="null"
+        [initials]="initials()"
+        [avatarColor]="selectedColor()"
+        [editable]="true"
+        size="xl"
+        (fileSelected)="onAvatarFile($event)"
+        (previewReady)="avatarPreview.set($event)"
+      ></app-avatar>
 
-        <div class="avatar-badge">
-          <ion-icon name="camera-outline"></ion-icon>
-        </div>
-
-        <input
-          #fileInput
-          type="file"
-          accept="image/*"
-          style="display: none"
-          (change)="onFileChange($event)"
-        />
-      </div>
-
+      <!-- Remove photo button — shown once a photo is chosen -->
       @if (avatarPreview()) {
       <ion-button
         fill="clear"
@@ -41,10 +31,10 @@
         (click)="clearAvatar()"
       >
         <ion-icon slot="start" name="close-circle"></ion-icon>
-        Remove
+        Remove photo
       </ion-button>
       } @else {
-      <!-- Color picker -->
+      <!-- Color picker — shown while no photo is uploaded -->
       <div class="color-row">
         @for (color of avatarColors; track color) {
         <div
@@ -171,6 +161,16 @@
         >
         }
       </ion-list>
+
+      <!-- Server error -->
+      @if (serverError()) {
+      <ion-note
+        color="danger"
+        class="ion-padding-horizontal block ion-padding-top"
+      >
+        {{ serverError() }}
+      </ion-note>
+      }
 
       <!-- Submit -->
       <div class="ion-padding ion-padding-top">

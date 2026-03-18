@@ -16,9 +16,13 @@
     </ion-tab-button>
 
     <ion-tab-button tab="profile" href="/tabs/profile">
-      <div class="avatar-tab" [class]="'avatar-tab--' + user.avatarColor">
-        {{ user.initials }}
-      </div>
+      <app-avatar
+        [avatarUrl]="currentUser()?.avatarUrl ?? null"
+        [initials]="currentUser()?.avatarInitials ?? '?'"
+        [avatarColor]="currentUser()?.avatarColor ?? 'primary'"
+        size="sm"
+      ></app-avatar>
+
       <ion-label>Profile</ion-label>
     </ion-tab-button>
   </ion-tab-bar>

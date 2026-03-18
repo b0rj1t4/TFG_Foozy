@@ -16,7 +16,12 @@ const register = async (req, res, next) => {
       return res.status(409).json({ message: 'Email already in use' });
     }
 
-    const user = await User.create({ name, email, password });
+    const user = await User.create({
+      name,
+      avatarColor: 'primary',
+      email,
+      password,
+    });
 
     const accessToken = signAccess(user._id);
     const refreshToken = signRefresh(user._id);

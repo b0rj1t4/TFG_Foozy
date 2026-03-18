@@ -1,9 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, OnInit, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import {
-  IonAvatar,
   IonBadge,
   IonButton,
   IonButtons,
@@ -22,20 +21,14 @@ import {
 } from '@ionic/angular/standalone';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { AuthService } from '../services/auth';
-import { UserService } from '../services/user';
 import { StepsService } from '../services/steps';
-
-interface Friend {
-  _id: string;
-  id: number;
-  name: string;
-  email: string;
-  avatarInitials: string;
-  avatarColor: string;
-  stepsToday: number;
-  sharedChallenges: number;
-  isFriend: boolean;
-}
+import { Friend, UserService } from '../services/user';
+import {
+  AVATAR_COLORS,
+  AvatarColor,
+  AvatarComponent,
+} from '../shared/avatar/avatar.component';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-profile',
@@ -43,7 +36,6 @@ interface Friend {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    RouterLink,
     IonContent,
     IonHeader,
     IonToolbar,
@@ -55,16 +47,19 @@ interface Friend {
     IonLabel,
     IonList,
     IonListHeader,
-    IonAvatar,
     IonChip,
     IonSearchbar,
     IonBadge,
     IonSpinner,
+    AvatarComponent,
   ],
   templateUrl: './profile.page.html',
   styleUrl: './profile.page.scss',
 })
 export class ProfilePage implements OnInit {
+  readonly avatarColors = AVATAR_COLORS;
+  selectedColor = signal<AvatarColor>('primary');
+
   // ── Service signals read directly in the template ─────────────────────────
   currentUser = this.userService.currentUser;
 
@@ -107,7 +102,9 @@ export class ProfilePage implements OnInit {
     this.stepsService.getMySteps('today').subscribe();
 
     // Load friends list
-    this.loadFriends();
+    this.loadLists();
+
+    this.selectedColor.set(this.currentUser()?.avatarColor ?? 'primary');
 
     // Search — debounced, hits API when query present, falls back to friends list when cleared
     this.searchControl.valueChanges
@@ -121,7 +118,7 @@ export class ProfilePage implements OnInit {
             );
           });
         } else if (!q) {
-          this.loadFriends();
+          this.loadLists();
         }
       });
   }
@@ -145,10 +142,14 @@ export class ProfilePage implements OnInit {
 
     const request$ = file
       ? this.userService.updateProfileWithAvatar(
-          { name: this.editName() },
+          { name: this.editName(), avatarColor: this.selectedColor() },
+
           file,
         )
-      : this.userService.updateProfile({ name: this.editName() });
+      : this.userService.updateProfile({
+          name: this.editName(),
+          avatarColor: this.selectedColor(),
+        });
 
     request$.subscribe({
       next: () => {
@@ -171,14 +172,8 @@ export class ProfilePage implements OnInit {
     input?.click();
   }
 
-  onAvatarChange(event: Event) {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (!file) return;
+  onAvatarFile(file: File) {
     this.avatarFile.set(file);
-    // Show local preview immediately
-    const reader = new FileReader();
-    reader.onload = () => this.avatarPreview.set(reader.result as string);
-    reader.readAsDataURL(file);
   }
 
   // ── Friends ───────────────────────────────────────────────────────────────
@@ -221,16 +216,43 @@ export class ProfilePage implements OnInit {
 
   // ── Private ───────────────────────────────────────────────────────────────
 
-  private loadFriends() {
-    this.userService.getFriends().subscribe((res) => {
-      this.users.set(
-        res.friends.map(
-          (f) =>
-            ({ ...f, isFriend: true }) as unknown as Friend & {
-              isFriend: boolean;
-            },
-        ),
-      );
+  private loadLists() {
+    forkJoin({
+      friends: this.userService.getFriends(),
+      suggestions: this.userService.getSuggestions(),
+    }).subscribe(({ friends, suggestions }) => {
+      const friendIds = new Set(friends.friends.map((f) => f._id));
+      const users = [
+        ...friends.friends.map((f) => ({ ...f, isFriend: true })),
+        ...suggestions.users
+          .filter((u) => !friendIds.has(u._id))
+          .map((u) => ({ ...u, isFriend: false })),
+      ];
+      this.users.set(users as unknown as (Friend & { isFriend: boolean })[]);
     });
   }
+
+  // private loadFriends() {
+  //   this.userService.getFriends().subscribe((res) => {
+  //     this.users.set(
+  //       res.friends.map(
+  //         (f) =>
+  //           ({ ...f, isFriend: true }) as unknown as Friend & {
+  //             isFriend: boolean;
+  //           },
+  //       ),
+  //     );
+  //   });
+  // }
+
+  // private loadSuggestions() {
+  //   this.userService.getSuggestions().subscribe((res) => {
+  //     // Merge suggestions with existing friends in the list
+  //     // const existing = this.users().filter((u) => u.isFriend);
+  //     this.users.set([
+  //       ...this.users(),
+  //       ...res.users.map((u) => ({ ...u, isFriend: false })),
+  //     ]);
+  //   });
+  // }
 }

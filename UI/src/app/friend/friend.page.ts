@@ -26,150 +26,7 @@ import { AchievementService } from '../services/achievement';
 import { NavigationService } from '../services/navigation.service';
 import { StepPeriod, StepsService, StepSummary } from '../services/steps';
 import { UserService } from '../services/user';
-
-// ── Types (shared with the rest of the app) ──────────────────────────────────
-
-interface FriendProfile {
-  id: number;
-  name: string;
-  avatarInitials: string;
-  avatarColor: string;
-  stepsToday: number;
-  totalSteps: number;
-  rank: number;
-}
-
-interface Achievement {
-  id: number;
-  title: string;
-  description: string;
-  icon: string;
-  status: 'unlocked' | 'locked';
-  unlockedAt?: string;
-}
-
-interface SharedChallenge {
-  id: number;
-  title: string;
-  targetSteps: number;
-  mySteps: number;
-  friendSteps: number;
-  endDate: string;
-  status: 'active' | 'completed';
-}
-
-// ── Mock data ────────────────────────────────────────────────────────────────
-
-// const ME = {
-//   name: 'Alex Ramos',
-//   rank: 18,
-//   stepsToday: 5820,
-//   totalSteps: 1240000,
-// };
-
-// const FRIEND: FriendProfile = {
-//   id: 2,
-//   name: 'Miguel Ferreira',
-//   avatarInitials: 'MF',
-//   avatarColor: 'success',
-//   stepsToday: 12300,
-//   totalSteps: 1850000,
-//   rank: 7,
-// };
-
-// const FRIEND_ACHIEVEMENTS: Achievement[] = [
-//   {
-//     id: 1,
-//     title: 'Daily Dasher',
-//     description: '10,000 steps in a day',
-//     icon: 'footsteps-outline',
-//     status: 'unlocked',
-//     unlockedAt: 'Jan 15',
-//   },
-//   {
-//     id: 2,
-//     title: 'Week Warrior',
-//     description: '7-day streak',
-//     icon: 'flame-outline',
-//     status: 'unlocked',
-//     unlockedAt: 'Jan 22',
-//   },
-//   {
-//     id: 3,
-//     title: 'Century Club',
-//     description: '100,000 total steps',
-//     icon: 'ribbon-outline',
-//     status: 'unlocked',
-//     unlockedAt: 'Feb 3',
-//   },
-//   {
-//     id: 4,
-//     title: 'Podium Finish',
-//     description: 'Top 3 in a challenge',
-//     icon: 'podium-outline',
-//     status: 'unlocked',
-//     unlockedAt: 'Feb 10',
-//   },
-//   {
-//     id: 5,
-//     title: 'Million Mover',
-//     description: '1,000,000 total steps',
-//     icon: 'star-outline',
-//     status: 'unlocked',
-//     unlockedAt: 'Mar 1',
-//   },
-//   {
-//     id: 6,
-//     title: 'Monthly Grind',
-//     description: '30-day streak',
-//     icon: 'thunderstorm-outline',
-//     status: 'locked',
-//   },
-//   {
-//     id: 7,
-//     title: 'Gold Rush',
-//     description: 'Win 1st place',
-//     icon: 'trophy-outline',
-//     status: 'locked',
-//   },
-//   {
-//     id: 8,
-//     title: 'Legend',
-//     description: 'Top leaderboard in 100+',
-//     icon: 'star-outline',
-//     status: 'locked',
-//   },
-// ];
-
-// const SHARED_CHALLENGES: SharedChallenge[] = [
-//   {
-//     id: 1,
-//     title: 'March Madness',
-//     targetSteps: 200000,
-//     mySteps: 134500,
-//     friendSteps: 182000,
-//     endDate: 'Mar 31',
-//     status: 'active',
-//   },
-//   {
-//     id: 2,
-//     title: 'Office Olympics',
-//     targetSteps: 1000000,
-//     mySteps: 680000,
-//     friendSteps: 820000,
-//     endDate: 'Mar 28',
-//     status: 'active',
-//   },
-//   {
-//     id: 3,
-//     title: 'Weekend Warrior',
-//     targetSteps: 60000,
-//     mySteps: 60000,
-//     friendSteps: 60000,
-//     endDate: 'Mar 10',
-//     status: 'completed',
-//   },
-// ];
+import { AvatarComponent } from '../shared/avatar/avatar.component';
 
 @Component({
   selector: 'app-friend',
@@ -195,11 +52,14 @@ interface SharedChallenge {
     IonCol,
     IonSelect,
     IonSelectOption,
+    AvatarComponent,
   ],
   templateUrl: './friend.page.html',
   styleUrl: './friend.page.scss',
 })
 export class FriendPage {
+  isFriend = signal(false);
+
   friend = signal<any>(null);
   achievements = signal<any[]>([]);
   sharedChallenges = signal<any[]>([]);
@@ -246,6 +106,7 @@ export class FriendPage {
     // Friend profile + shared challenges
     this.userService.getFriendProfile(id).subscribe((res) => {
       this.friend.set(res.friend);
+      this.isFriend.set(res.friend.isFriend || false);
       this.sharedChallenges.set(res.sharedChallenges);
     });
 
@@ -277,9 +138,33 @@ export class FriendPage {
     return Math.min(100, Math.round((current / target) * 100));
   }
 
+  addFriend() {
+    this.userService.addFriend(this.friend()._id).subscribe({
+      next: () => {
+        this.isFriend.set(true);
+        // Load gated data now that we're friends
+        const id = this.route.snapshot.paramMap.get('id')!;
+        this.userService
+          .getFriendProfile(id)
+          .subscribe((res) => this.sharedChallenges.set(res.sharedChallenges));
+        this.achievementService
+          .getFriendAchievements(id)
+          .subscribe((res) => this.achievements.set(res.achievements));
+        this.loadFriendSteps(id, this.selectedPeriod());
+      },
+      error: (err) => console.error('Add friend error', err?.error?.message),
+    });
+  }
+
   removeFriend() {
     this.userService.removeFriend(this.friend()._id).subscribe({
-      next: () => this.nav.back(),
+      next: () => {
+        this.isFriend.set(false);
+        // Clear friend-gated data
+        this.sharedChallenges.set([]);
+        this.achievements.set([]);
+        this.friendSteps.set({ steps: [], total: 0 });
+      },
       error: (err) => console.error('Remove friend error', err?.error?.message),
     });
   }

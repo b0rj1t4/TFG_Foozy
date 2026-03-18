@@ -6,21 +6,25 @@ import {
   IonTabButton,
   IonTabs,
 } from '@ionic/angular/standalone';
-
-// In a real app this comes from your AuthService / UserStore
-const CURRENT_USER = {
-  initials: 'AR',
-  avatarColor: 'primary',
-};
+import { AvatarComponent } from '../shared/avatar/avatar.component';
+import { UserService } from '../services/user';
 
 @Component({
   selector: 'app-tabs',
   templateUrl: 'tabs.page.html',
   styleUrls: ['tabs.page.scss'],
   standalone: true,
-  imports: [IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel],
+  imports: [
+    IonTabs,
+    IonTabBar,
+    IonTabButton,
+    IonIcon,
+    IonLabel,
+    AvatarComponent,
+  ],
 })
 export class TabsPage {
-  readonly user = CURRENT_USER;
-  constructor() {}
+  readonly currentUser = this.userService.currentUser;
+
+  constructor(private userService: UserService) {}
 }

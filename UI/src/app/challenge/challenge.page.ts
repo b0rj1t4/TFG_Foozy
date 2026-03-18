@@ -26,6 +26,7 @@ import {
 import { ChallengeService, RankingEntry } from '../services/challenges';
 import { NavigationService } from '../services/navigation.service';
 import { UserService } from '../services/user';
+import { AvatarComponent } from '../shared/avatar/avatar.component';
 
 function daysRemaining(endDate: string): number {
   const diff = new Date(endDate).getTime() - Date.now();
@@ -65,6 +66,7 @@ function formatDate(iso: string): string {
     IonRefresher,
     IonRefresherContent,
     IonAvatar,
+    AvatarComponent,
   ],
 })
 export class ChallengePage implements OnInit {
@@ -210,8 +212,7 @@ export class ChallengePage implements OnInit {
 
   goToProfile(entry: RankingEntry) {
     if (entry.isMe) return;
-    if (this.isFriend(entry.user._id)) {
-      this.router.navigate(['/friend', entry.user._id]);
-    }
+
+    this.router.navigate(['/friend', entry.user._id]);
   }
 }

@@ -29,6 +29,7 @@ export interface Friend extends Pick<
   User,
   | '_id'
   | 'name'
+  | 'email'
   | 'avatarInitials'
   | 'avatarColor'
   | 'avatarUrl'
@@ -124,6 +125,15 @@ export class UserService {
     return this.api.get<{ users: SearchResult[] }>('/users/search', {
       q: query,
     });
+  }
+
+  /**
+   * GET /users/suggestions
+   * Returns up to 10 random non-friends — used to populate
+   * the "People you may know" section on load without any search query.
+   */
+  getSuggestions(): Observable<{ users: SearchResult[] }> {
+    return this.api.get<{ users: SearchResult[] }>('/users/suggestions');
   }
 
   /**

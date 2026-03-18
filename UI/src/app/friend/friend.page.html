@@ -7,9 +7,15 @@
     </ion-buttons>
     <ion-title>{{ friend()?.name }}</ion-title>
     <ion-buttons slot="end">
+      @if (isFriend()) {
       <ion-button color="danger" fill="clear" (click)="removeFriend()">
         <ion-icon slot="icon-only" name="person-remove-outline"></ion-icon>
       </ion-button>
+      } @else {
+      <ion-button color="primary" fill="clear" (click)="addFriend()">
+        <ion-icon slot="icon-only" name="person-add-outline"></ion-icon>
+      </ion-button>
+      }
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -17,12 +23,13 @@
 <ion-content [fullscreen]="true">
   <!-- Hero: avatar + name + steps -->
   <div class="ion-text-center ion-padding">
-    <div
-      class="avatar-circle ion-margin-auto"
-      [class]="'avatar--' + friend()?.avatarColor"
-    >
-      {{ friend()?.avatarInitials }}
-    </div>
+    <app-avatar
+      [avatarUrl]="friend()?.avatarUrl ?? null"
+      [initials]="friend()?.avatarInitials ?? '?'"
+      [avatarColor]="friend()?.avatarColor ?? 'primary'"
+      size="xl"
+    ></app-avatar>
+
     <h2 class="ion-no-margin ion-padding-top">{{ friend()?.name }}</h2>
 
     <div class="chips-row ion-padding-top">
@@ -156,7 +163,14 @@
           <div class="bar-pct">{{ pct(c.friendSteps, c.targetSteps) }}%</div>
         </div>
 
-        <p class="ion-margin-top">Ends {{ c.endDate }}</p>
+        <p class="ion-margin-top">
+          <ion-chip outline color="medium">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <ion-label>
+              {{c.startDate | date }} - {{ c.endDate | date }}</ion-label
+            >
+          </ion-chip>
+        </p>
       </ion-label>
     </ion-item>
     }

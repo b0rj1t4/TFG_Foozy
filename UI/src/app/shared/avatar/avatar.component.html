@@ -1,0 +1,43 @@
+<div
+  class="avatar-wrap"
+  [class]="'avatar-wrap--' + size"
+  [class.avatar-wrap--editable]="editable"
+  (click)="editable && triggerUpload()"
+>
+  <!-- Photo -->
+  @if (preview() || avatarUrl) {
+    <img
+      [src]="preview() ?? 'http://localhost:3000' + avatarUrl!"
+      [alt]="initials"
+      class="avatar-img"
+      (error)="onImgError()"
+    />
+  } @else {
+    <!-- Initials fallback -->
+    <div class="avatar-initials" [class]="'avatar-initials--' + avatarColor">
+      {{ initials }}
+    </div>
+  }
+
+  <!-- Edit overlay -->
+  @if (editable) {
+    <div class="avatar-overlay">
+      @if (uploading) {
+        <ion-spinner name="crescent" class="avatar-spinner"></ion-spinner>
+      } @else {
+        <ion-icon name="camera-outline" class="avatar-camera"></ion-icon>
+      }
+    </div>
+  }
+
+  <!-- Hidden file input -->
+  @if (editable) {
+    <input
+      #fileInput
+      type="file"
+      accept="image/*"
+      style="display: none"
+      (change)="onFileChange($event)"
+    />
+  }
+</div>

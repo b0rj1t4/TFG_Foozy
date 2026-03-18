@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { ApiService } from './api';
+import { AvatarColor } from '../shared/avatar/avatar.component';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -11,7 +12,7 @@ export interface Participant {
     _id: string;
     name: string;
     avatarInitials: string;
-    avatarColor: string;
+    avatarColor: AvatarColor;
   };
   steps: number;
   joinedAt: string;
@@ -23,7 +24,7 @@ export interface RankingEntry {
     _id: string;
     name: string;
     avatarInitials: string;
-    avatarColor: string;
+    avatarColor: AvatarColor;
     avatarUrl?: string | null;
   };
   steps: number;

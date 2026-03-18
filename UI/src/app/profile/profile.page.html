@@ -38,35 +38,28 @@
 
   <!-- Avatar + identity -->
   <div class="ion-text-center ion-padding">
-    <div class="avatar-wrap" (click)="editing() && triggerAvatarUpload()">
-      @if (avatarPreview()) {
-      <img [src]="avatarPreview()" class="avatar-img" alt="avatar" />
-      } @else if (currentUser()?.avatarUrl) {
-      <img
-        [src]="'http://localhost:3000' + currentUser()!.avatarUrl!"
-        class="avatar-img"
-        alt="avatar"
-      />
-      } @else {
+    <app-avatar
+      [avatarUrl]="currentUser()?.avatarUrl ?? null"
+      [initials]="currentUser()?.avatarInitials ?? '?'"
+      [avatarColor]="selectedColor()"
+      [editable]="editing()"
+      [uploading]="saving()"
+      size="xl"
+      (fileSelected)="onAvatarFile($event)"
+      (previewReady)="avatarPreview.set($event)"
+    ></app-avatar>
+    @if (editing()) {
+    <div class="color-row">
+      @for (color of avatarColors; track color) {
       <div
-        class="avatar-circle"
-        [class]="'avatar-circle--' + (currentUser()?.avatarColor ?? 'primary')"
-      >
-        {{ currentUser()?.avatarInitials }}
-      </div>
-      } @if (editing()) {
-      <div class="avatar-edit-overlay">
-        <ion-icon name="camera-outline"></ion-icon>
-      </div>
+        class="color-dot"
+        [class]="'color-dot--' + color"
+        [class.color-dot--active]="selectedColor() === color"
+        (click)="selectedColor.set(color)"
+      ></div>
       }
-      <input
-        #avatarInput
-        type="file"
-        accept="image/*"
-        style="display: none"
-        (change)="onAvatarChange($event)"
-      />
     </div>
+    }
 
     <!-- Edit fields -->
     @if (editing()) {
@@ -130,11 +123,13 @@
 
     @for (user of friends(); track user._id) {
     <ion-item lines="full" [button]="true" (click)="goToFriend(user)">
-      <ion-avatar slot="start">
-        <div class="avatar-sm" [class]="'avatar-circle--' + user.avatarColor">
-          {{ user.avatarInitials }}
-        </div>
-      </ion-avatar>
+      <app-avatar
+        slot="start"
+        [avatarUrl]="user.avatarUrl ?? null"
+        [initials]="user.avatarInitials ?? '?'"
+        [avatarColor]="user.avatarColor"
+        size="sm"
+      ></app-avatar>
       <ion-label>
         <h2>{{ user.name }}</h2>
         <p>
@@ -170,11 +165,14 @@
 
     @for (user of nonFriends(); track user._id) {
     <ion-item lines="full">
-      <ion-avatar slot="start">
-        <div class="avatar-sm" [class]="'avatar-circle--' + user.avatarColor">
-          {{ user.avatarInitials }}
-        </div>
-      </ion-avatar>
+      <app-avatar
+        slot="start"
+        [avatarUrl]="user.avatarUrl ?? null"
+        [initials]="user.avatarInitials ?? '?'"
+        [avatarColor]="user.avatarColor"
+        size="sm"
+      ></app-avatar>
+
       <ion-label>
         <h2>{{ user.name }}</h2>
         <p>
