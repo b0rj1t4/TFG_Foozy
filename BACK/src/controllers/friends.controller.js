@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const Challenge = require('../models/Challenge');
+const Step = require('../models/Step');
 
 const getFriends = async (req, res, next) => {
   try {
