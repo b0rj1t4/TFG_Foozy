@@ -114,6 +114,8 @@ const getChallengeById = async (req, res, next) => {
       (p) => p.user._id.toString() === req.user._id.toString(),
     );
 
+    console.log('Calculating steps for challenge', me);
+
     const myRank = me
       ? [...challenge.participants]
           .sort((a, b) => b.steps - a.steps)

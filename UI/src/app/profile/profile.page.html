@@ -164,7 +164,7 @@
     </ion-list-header>
 
     @for (user of nonFriends(); track user._id) {
-    <ion-item lines="full">
+    <ion-item lines="full" (click)="goToFriend(user)">
       <app-avatar
         slot="start"
         [avatarUrl]="user.avatarUrl ?? null"

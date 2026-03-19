@@ -90,6 +90,10 @@ const GOAL_PRESETS = [5000, 10000, 50000, 100000, 500000];
   ],
 })
 export class CreateChallengePage {
+  readonly minDate = new Date().toISOString();
+  readonly maxDate = new Date(
+    Date.now() + 365 * 24 * 60 * 60 * 1000,
+  ).toISOString();
   readonly presetImages = PRESET_IMAGES;
   readonly goalPresets = GOAL_PRESETS;
 

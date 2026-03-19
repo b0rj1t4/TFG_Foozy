@@ -173,6 +173,7 @@
           <ng-template>
             <ion-datetime
               id="startDatetime"
+              min="{{ minDate }}"
               formControlName="startDate"
               presentation="date"
               preferWheel
@@ -196,6 +197,8 @@
           <ng-template>
             <ion-datetime
               id="endDatetime"
+              min="{{ minDate }}"
+              max="{{ maxDate }}"
               formControlName="endDate"
               presentation="date"
               preferWheel

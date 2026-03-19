@@ -130,7 +130,7 @@
     </ion-list-header>
 
     @for (c of sharedChallenges(); track c.id) {
-    <ion-item lines="full">
+    <ion-item lines="full" routerLink="/challenge/{{ c.id }}" detail="true">
       <ion-icon
         slot="start"
         name="trophy-outline"

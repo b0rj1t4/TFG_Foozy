@@ -64,7 +64,9 @@
         <h2>{{ a.title }}</h2>
         <p>{{ a.description }}</p>
       </ion-label>
-      <ion-note slot="end">{{ a.unlockedAt }}</ion-note>
+      <ion-note slot="end"
+        >{{ a.unlockedAt | date: "MMM dd, yyyy 'at' hh:mm a" }}</ion-note
+      >
     </ion-item>
     }
   </ion-list>

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   IonBadge,
   IonButton,
@@ -53,6 +53,7 @@ import { AvatarComponent } from '../shared/avatar/avatar.component';
     IonSelect,
     IonSelectOption,
     AvatarComponent,
+    RouterLink,
   ],
   templateUrl: './friend.page.html',
   styleUrl: './friend.page.scss',

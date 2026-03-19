@@ -76,7 +76,7 @@ const getFriendProfile = async (req, res, next) => {
     const { id } = req.params;
 
     const isFriend = req.user.friends.map((f) => f.toString()).includes(id);
-    if (!isFriend) return res.status(403).json({ message: 'Not a friend' });
+    // if (!isFriend) return res.status(403).json({ message: 'Not a friend' });
 
     const friend = await User.findById(id).select(
       'name email avatarInitials avatarColor avatarUrl stepsToday totalSteps',

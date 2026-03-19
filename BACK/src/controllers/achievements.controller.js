@@ -9,10 +9,10 @@ const getAllAchievements = async (req, res, next) => {
     ]);
 
     const unlockedMap = new Map(
-      unlocked.map(ua => [ua.achievement._id.toString(), ua])
+      unlocked.map((ua) => [ua.achievement._id.toString(), ua]),
     );
 
-    const result = all.map(a => {
+    const result = all.map((a) => {
       const ua = unlockedMap.get(a._id.toString());
       return {
         ...a.toJSON(),
@@ -46,10 +46,10 @@ const getUserAchievements = async (req, res, next) => {
   try {
     const { userId } = req.params;
 
-    const isFriend = req.user.friends.map(f => f.toString()).includes(userId);
-    if (!isFriend && userId !== req.user._id.toString()) {
-      return res.status(403).json({ message: 'Not a friend' });
-    }
+    // const isFriend = req.user.friends.map(f => f.toString()).includes(userId);
+    // if (!isFriend && userId !== req.user._id.toString()) {
+    //   return res.status(403).json({ message: 'Not a friend' });
+    // }
 
     const [all, unlocked] = await Promise.all([
       Achievement.find().sort({ category: 1 }),
@@ -57,10 +57,10 @@ const getUserAchievements = async (req, res, next) => {
     ]);
 
     const unlockedMap = new Map(
-      unlocked.map(ua => [ua.achievement._id.toString(), ua])
+      unlocked.map((ua) => [ua.achievement._id.toString(), ua]),
     );
 
-    const result = all.map(a => {
+    const result = all.map((a) => {
       const ua = unlockedMap.get(a._id.toString());
       return {
         ...a.toJSON(),
