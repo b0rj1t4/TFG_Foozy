@@ -5,15 +5,15 @@ const config: CapacitorConfig = {
   appName: 'Footzy',
   webDir: 'www',
   server: {
-    androidScheme: 'https',
+    androidScheme: 'http',
   },
   plugins: {
     BackgroundRunner: {
       label: 'com.capacitor.background.check',
       src: 'runners/runner.js',
-      event: 'checkIn',
+      event: 'syncSteps',
       repeat: true,
-      interval: 30,
+      interval: 15, // minutes between runs
       autoStart: true,
     },
   },
