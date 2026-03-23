@@ -11,9 +11,18 @@ const logSteps = async (req, res, next) => {
       return res.status(400).json({ message: 'Valid steps count required' });
     }
 
-    const day = date ? new Date(date) : new Date();
-    day.setHours(0, 0, 0, 0);
-
+    // Parse yyyy-MM-dd as LOCAL midnight, not UTC midnight.
+    // new Date('2026-03-23') parses as UTC 00:00 which becomes the previous
+    // day for users behind UTC. Splitting and using the Date constructor
+    // with individual parts creates local midnight instead.
+    let day;
+    if (date && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      const [y, m, d] = date.split('-').map(Number);
+      day = new Date(y, m - 1, d, 0, 0, 0, 0); // local midnight
+    } else {
+      day = new Date();
+      day.setHours(0, 0, 0, 0);
+    }
     // Upsert: one record per user per day
     const record = await Step.findOneAndUpdate(
       { user: req.user._id, date: day },
@@ -72,19 +81,9 @@ const logSteps = async (req, res, next) => {
 
 const getMySteps = async (req, res, next) => {
   try {
-    const { period } = req.query; // today | month | year
+    const { period } = req.query; // today | week | month | year
 
-    const now = new Date();
-    let from;
-
-    if (period === 'month') {
-      from = new Date(now.getFullYear(), now.getMonth(), 1);
-    } else if (period === 'year') {
-      from = new Date(now.getFullYear(), 0, 1);
-    } else {
-      from = new Date();
-      from.setHours(0, 0, 0, 0);
-    }
+    const from = fromDateForPeriod(period);
 
     const steps = await Step.find({
       user: req.user._id,
@@ -105,21 +104,8 @@ const getUserSteps = async (req, res, next) => {
     const { userId } = req.params;
 
     const isFriend = req.user.friends.map((f) => f.toString()).includes(userId);
-    // if (!isFriend && userId !== req.user._id.toString()) {
-    //   return res.status(403).json({ message: 'Not a friend' });
-    // }
 
-    const now = new Date();
-    let from;
-
-    if (period === 'month') {
-      from = new Date(now.getFullYear(), now.getMonth(), 1);
-    } else if (period === 'year') {
-      from = new Date(now.getFullYear(), 0, 1);
-    } else {
-      from = new Date();
-      from.setHours(0, 0, 0, 0);
-    }
+    const from = fromDateForPeriod(period);
 
     const steps = await Step.find({
       user: userId,
@@ -132,6 +118,27 @@ const getUserSteps = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+// Shared helper — returns the `from` date for a given period string
+const fromDateForPeriod = (period) => {
+  const now = new Date();
+  if (period === 'week') {
+    const from = new Date(now);
+    from.setDate(now.getDate() - 6); // last 7 days including today
+    from.setHours(0, 0, 0, 0);
+    return from;
+  }
+  if (period === 'month') {
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  }
+  if (period === 'year') {
+    return new Date(now.getFullYear(), 0, 1);
+  }
+  // default: today
+  const from = new Date();
+  from.setHours(0, 0, 0, 0);
+  return from;
 };
 
 module.exports = { logSteps, getMySteps, getUserSteps };

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage-angular';
+import { Preferences } from '@capacitor/preferences';
 
 const ACCESS_TOKEN_KEY = 'access_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
@@ -31,6 +32,7 @@ export class TokenStorageService {
       s.set(ACCESS_TOKEN_KEY, accessToken),
       s.set(REFRESH_TOKEN_KEY, refreshToken),
     ]);
+    Preferences.set({ key: REFRESH_TOKEN_KEY, value: refreshToken });
   }
 
   async clearTokens(): Promise<void> {
@@ -39,5 +41,6 @@ export class TokenStorageService {
       s.remove(ACCESS_TOKEN_KEY),
       s.remove(REFRESH_TOKEN_KEY),
     ]);
+    Preferences.remove({ key: ACCESS_TOKEN_KEY });
   }
 }

@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
+import { BackgroundRunner } from '@capacitor/background-runner';
+import { Capacitor } from '@capacitor/core';
+import { Health } from '@capgo/capacitor-health';
 import { IonicModule } from '@ionic/angular';
 import { AuthService } from './services/auth';
-import { TokenStorageService } from './services/token';
-import { BackgroundRunner } from '@capacitor/background-runner';
-import { Health } from '@capgo/capacitor-health';
 import { HealthStepsService } from './services/health-steps';
-import { Capacitor } from '@capacitor/core';
+import { TokenStorageService } from './services/token';
+import { App } from '@capacitor/app';
+import { Preferences } from '@capacitor/preferences';
 import { environment } from 'src/environments/environment';
-
-import * as CapacitorKV from '@capacitor/background-runner';
+const BACKFILL_DONE_KEY = 'health_backfill_done';
 
 @Component({
   selector: 'app-root',
@@ -25,17 +26,17 @@ export class AppComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.auth.init();
+    await this.auth.init();
 
-    this.init();
-    this.testHealth();
-    // this.testLoad();
+    // this.init();
 
-    this.testBackgroundRunner();
-
-    // Only initialise health on a real device
+    // Only initialize health on a real device
     if (Capacitor.isNativePlatform() && this.auth.isLoggedIn()) {
       await this.initHealth();
+
+      App.addListener('appStateChange', ({ isActive }) => {
+        if (isActive) this.health.syncToday();
+      });
     }
   }
 
@@ -43,71 +44,41 @@ export class AppComponent implements OnInit {
     const granted = await this.health.requestPermissions();
     if (!granted) return;
 
-    // Backfill the last 7 days so the charts have history from day one
-    await this.health.backfill(7);
+    await Preferences.set({ key: 'api_base_url', value: environment.apiUrl });
+
+    // Backfill last 7 days only once per install
+    const backfillDone = await Preferences.get({ key: BACKFILL_DONE_KEY });
+
+    if (!backfillDone?.value) {
+      await this.health.backfill(7);
+      await Preferences.set({ key: BACKFILL_DONE_KEY, value: 'true' });
+    }
+
+    // Always sync today on every app open — safe because backend upserts
+    await this.health.syncToday();
 
     // Register the 15-min background sync
     await this.health.registerBackgroundSync();
   }
 
-  async init() {
-    try {
-      const permissions = await BackgroundRunner.requestPermissions({
-        apis: ['notifications'],
-      });
+  // async init() {
+  //   try {
+  //     const permissions = await BackgroundRunner.requestPermissions({
+  //       apis: ['notifications'],
+  //     });
 
-      // Ask for separate read/write access scopes
-      const healthPermissions = await Health.requestAuthorization({
-        read: ['steps'],
-      });
+  //     // Ask for separate read/write access scopes
+  //     const healthPermissions = await Health.requestAuthorization({
+  //       read: ['steps'],
+  //     });
 
-      console.log('permissions', JSON.stringify(permissions, null, 2));
-      console.log(
-        'health permissions',
-        JSON.stringify(healthPermissions, null, 2),
-      );
-    } catch (err) {
-      console.log(`ERROR: ${err}`);
-    }
-  } // Test the KV Store
-
-  // async testSave() {
-  //   const result = await BackgroundRunner.dispatchEvent({
-  //     label: 'com.capacitor.background.check',
-  //     event: 'fetchTest',
-  //     details: {},
-  //   });
-  //   console.log('save result', JSON.stringify(result, null, 2));
+  //     console.log('permissions', JSON.stringify(permissions, null, 2));
+  //     console.log(
+  //       'health permissions',
+  //       JSON.stringify(healthPermissions, null, 2),
+  //     );
+  //   } catch (err) {
+  //     console.log(`ERROR: ${err}`);
+  //   }
   // }
-
-  // async testLoad() {
-  //   const result = await BackgroundRunner.dispatchEvent({
-  //     label: 'com.capacitor.background.check',
-  //     event: 'testLoad',
-  //     details: {},
-  //   });
-  //   console.log('load result', JSON.stringify(result, null, 2));
-  // }
-
-  async testHealth() {
-    // Query the last 50 step samples from the past 24 hours
-    const { samples } = await Health.readSamples({
-      dataType: 'steps',
-      startDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-      endDate: new Date().toISOString(),
-      limit: 50,
-    });
-    console.log('step samples', JSON.stringify(samples, null, 2));
-  }
-
-  async testBackgroundRunner() {
-    const result = await BackgroundRunner.dispatchEvent({
-      label: 'com.capacitor.background.check',
-      event: 'fetchTest',
-      details: {},
-    });
-    console.log('*--* Background Runner Test *-*-');
-    console.log('background runner result', JSON.stringify(result, null, 2));
-    console.log('*--* Background Runner Test *-*-');
-  }
 }

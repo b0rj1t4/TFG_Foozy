@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonIcon, IonSpinner } from '@ionic/angular/standalone';
+import { environment } from 'src/environments/environment';
 
 export const AVATAR_COLORS = [
   'primary',
@@ -35,6 +36,7 @@ export type AvatarSize = 'sm' | 'md' | 'lg' | 'xl';
   imports: [CommonModule, IonIcon, IonSpinner],
 })
 export class AvatarComponent {
+  readonly serverUrl = environment.serverUrl;
   /** URL of an uploaded photo — takes priority over initials */
   @Input() avatarUrl: string | null = null;
 

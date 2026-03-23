@@ -7,7 +7,7 @@
   <!-- Photo -->
   @if (preview() || avatarUrl) {
     <img
-      [src]="preview() ?? 'http://localhost:3000' + avatarUrl!"
+      [src]="preview() ?? serverUrl + avatarUrl!"
       [alt]="initials"
       class="avatar-img"
       (error)="onImgError()"
