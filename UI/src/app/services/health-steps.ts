@@ -145,7 +145,7 @@ export class HealthStepsService {
       });
 
       this.lastSyncAt.set(new Date());
-      console.log(`[HealthSync] Synced ${steps} steps for today`);
+      console.log(`[HealthSync] Synced ${steps} steps for today : ${date}`);
     } catch (err) {
       console.error('[HealthSync] syncToday failed', err);
     } finally {
@@ -208,5 +208,5 @@ export class HealthStepsService {
 // ── Helper ────────────────────────────────────────────────────────────────────
 
 function toDateString(date: Date): string {
-  return date.toISOString().split('T')[0]; // yyyy-MM-dd
+  return date.toLocaleDateString('en-CA'); // yyyy-MM-dd
 }

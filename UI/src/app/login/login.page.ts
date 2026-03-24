@@ -18,6 +18,7 @@ import {
   IonSpinner,
 } from '@ionic/angular/standalone';
 import { AuthService } from '../services/auth';
+import { HealthStepsService } from '../services/health-steps';
 
 @Component({
   selector: 'app-login',
@@ -47,6 +48,7 @@ export class LoginPage {
     private fb: FormBuilder,
     private router: Router,
     private auth: AuthService,
+    private health: HealthStepsService,
   ) {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -68,7 +70,8 @@ export class LoginPage {
     this.serverError.set(null);
 
     this.auth.login(this.form.value).subscribe({
-      next: () => {
+      next: async () => {
+        await this.health.syncToday();
         this.router.navigateByUrl('/tabs/activity', { replaceUrl: true });
       },
       error: (err) => {

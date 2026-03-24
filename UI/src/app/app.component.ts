@@ -20,15 +20,10 @@ const BACKFILL_DONE_KEY = 'health_backfill_done';
   standalone: true,
 })
 export class AppComponent implements OnInit {
-  constructor(
-    private auth: AuthService,
-    private health: HealthStepsService,
-  ) {}
+  constructor(private auth: AuthService, private health: HealthStepsService) {}
 
   async ngOnInit() {
     await this.auth.init();
-
-    // this.init();
 
     // Only initialize health on a real device
     if (Capacitor.isNativePlatform() && this.auth.isLoggedIn()) {
@@ -60,25 +55,4 @@ export class AppComponent implements OnInit {
     // Register the 15-min background sync
     await this.health.registerBackgroundSync();
   }
-
-  // async init() {
-  //   try {
-  //     const permissions = await BackgroundRunner.requestPermissions({
-  //       apis: ['notifications'],
-  //     });
-
-  //     // Ask for separate read/write access scopes
-  //     const healthPermissions = await Health.requestAuthorization({
-  //       read: ['steps'],
-  //     });
-
-  //     console.log('permissions', JSON.stringify(permissions, null, 2));
-  //     console.log(
-  //       'health permissions',
-  //       JSON.stringify(healthPermissions, null, 2),
-  //     );
-  //   } catch (err) {
-  //     console.log(`ERROR: ${err}`);
-  //   }
-  // }
 }
