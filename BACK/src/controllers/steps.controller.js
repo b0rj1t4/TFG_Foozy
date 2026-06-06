@@ -36,19 +36,16 @@ const logSteps = async (req, res, next) => {
     );
 
     // Recalculate totalSteps and stepsToday on the user
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
     const [totalAgg] = await Step.aggregate([
       { $match: { user: req.user._id } },
       { $group: { _id: null, total: { $sum: '$steps' } } },
     ]);
 
-    console.log(
-      `Total steps for user ${req.user._id}: ${totalAgg?.total ?? 0}`,
-    );
+    const todayRecord = await Step.findOne({ user: req.user._id, date: day });
 
-    const todayRecord = await Step.findOne({ user: req.user._id, date: today });
+    console.log(
+      `Total steps for user ${req.user._id}: ${totalAgg?.total ?? 0} steps, steps today: ${todayRecord?.steps ?? 0} steps`,
+    );
 
     await User.findByIdAndUpdate(req.user._id, {
       totalSteps: totalAgg?.total ?? 0,
