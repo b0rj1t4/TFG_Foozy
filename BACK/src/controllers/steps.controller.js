@@ -23,6 +23,11 @@ const logSteps = async (req, res, next) => {
       day = new Date();
       day.setHours(0, 0, 0, 0);
     }
+
+    console.log(
+      `Logging ${steps} steps for user ${req.user._id} on ${day.toISOString()}`,
+    );
+
     // Upsert: one record per user per day
     const record = await Step.findOneAndUpdate(
       { user: req.user._id, date: day },
@@ -38,6 +43,10 @@ const logSteps = async (req, res, next) => {
       { $match: { user: req.user._id } },
       { $group: { _id: null, total: { $sum: '$steps' } } },
     ]);
+
+    console.log(
+      `Total steps for user ${req.user._id}: ${totalAgg?.total ?? 0}`,
+    );
 
     const todayRecord = await Step.findOne({ user: req.user._id, date: today });
 
