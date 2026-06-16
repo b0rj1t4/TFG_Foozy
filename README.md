@@ -17,7 +17,7 @@
     </tr>
     <tr style="background-color:white">
       <td>Fecha:</td>
-      <td>TBD</td>
+      <td>Junio 2026</td>
     </tr>
     <tr style="background-color:white">
       <td>Repositorio del código fuente:</td>
